@@ -1,0 +1,31 @@
+---
+title: "Exercise 3_2: Fun with Maps"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+From here on, you can go and explore!
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Open Exercise
+
+Have fun creating maps and exploring the package `tmap`!
+
+You could try
+
+-   running the command `cols4all::c4a_gui()` to find the name of your favorite color palette
+-   running the command `tmap_mode("view")` to make an interactive map
+
+For learning more about alterations:
+
+-   https://r-tmap.github.io/tmap/index.html
+:::

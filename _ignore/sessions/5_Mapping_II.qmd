@@ -1,0 +1,837 @@
+---
+title: "Mapping II"
+author: "Stefan Jünger & Dennis Abel"
+date: April 10, 2025
+execute:
+  echo: true
+format:
+  revealjs:
+    embed-resources: true
+    theme: [simple, tweaks.css]
+    smaller: true
+    scrollable: true
+    slide-number: "c/t"
+    navigation-mode: vertical
+    logo: ../img/GESIS-Logo_2024.svg.png
+    # fig-dpi: 300
+    fig-align: "center"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(terra)
+library(tmap)
+```
+
+## Now
+
+```{r}
+#| echo: false
+source("course_content.R") 
+
+course_content |> 
+  kableExtra::row_spec(8, background = "yellow")
+```
+
+## What is `ggplot2`?
+
+`ggplot2` is well-known for creating plots. Thanks to our `sf` and `terra`, we can exploit all amazing `ggplot2` functions.
+
+In general, on `ggplot2`:
+
+- well-suited for multi-dimensional data
+- expects data (frames) as input
+- components of the plot are added as layers
+
+```{r eval=FALSE}
+#| eval: false
+plot_call +
+  layer_1 +
+  layer_2 +
+  ... +
+  layer_n
+```
+
+## From `tmap` to `ggplot2`
+
+Reminder: We played around with `tmap` yesterday, and the results were already pretty nice. `ggplot2` allows us to customize our maps even more, draw on previous knowledge of the package and increase the possibilities to combine maps, plots, and more.
+
+The good thing: the inner logic of `tmap` and `ggplot2` is the same and is based on the *grammar of graphics*.
+
+If you are new to `ggplot2`, you might want to check out:
+
+- [ggplot2 - Elegant Graphics for Data Analysis](https://www.springer.com/gp/book/9783319242750) by Hadley Wickham
+- [BBC Visual and Data Journalism cookbook for R graphics](https://bbc.github.io/rcookbook/#how_to_create_bbc_style_graphics)
+- [ggplot2 extensions](http://www.ggplot2-exts.org/gallery/)
+
+## Components of a Plot
+
+According to Wickham (2010, p. 8^[Wickham, Hadley. 2010. “A Layered Grammar of Graphics.” Journal of Computational and Graphical Statistics 19(1):3–28. doi: 10.1198/jcgs.2009.07098.
+]), a layered plot consists of the following components:
+
+- data and aesthetic mappings,
+- geometric objects,
+- scales,
+- (and facet specification)
+
+```{r}
+#| eval: false
+plot_call +
+  data +
+  aesthetics +
+  geometries +
+  scales +
+  facets
+```
+
+## Let us start building some maps!
+
+First: Get the data!
+
+```{r}
+#| eval: false
+# load district shapefile
+german_districts <- sf::read_sf("./data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- 
+  readr::read_csv2("./data/attributes_districts.csv") |> 
+  dplyr::mutate(ecar_share = as.numeric(ecar_share))
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# load states shapefile
+german_states <- sf::read_sf("./data/VG250_STA.shp")
+```
+
+```{r}
+#| echo: false
+# load district shapefile
+german_districts <- sf::read_sf("../../data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- 
+  readr::read_csv2("../../data/attributes_districts.csv") |> 
+  dplyr::mutate(ecar_share = as.numeric(ecar_share))
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# load states shapefile
+german_states <- sf::read_sf("../../data/VG250_STA.shp")
+```
+
+## Here's a first basic map
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# a simple first map 
+ggplot() +
+  geom_sf(data = german_districts_enhanced)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# a simple first map 
+ggplot() +
+  geom_sf(data = german_districts_enhanced)
+```
+:::
+::::
+
+## Making a plan
+
+This map will be our canvas for the ongoing session.
+There are hundreds of options to change this map.
+We will cover at least some essential building blocks:
+
+- *THE MAP*: adding attributes, choose from colors/palettes, adding layers
+- *THE LEGEND*: position, sizes, display
+- *THE ENVIRONMENT*: choosing from themes and build your own
+- *THE META-INFORMATION*: titles and sources
+- *THE EXTRAS*: scales and compass
+
+If your working on your maps, the [ggplot2 cheatsheets](https://rstudio.github.io/cheatsheets/html/data-visualization.html) will help you with an overview of scales, themes, labels, facets, and more. 
+
+## The map layer: a basis
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# easy fill with color
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    fill = "purple", 
+    color = "blue"
+  )
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# easy fill with color
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    fill = "purple", 
+    color = "blue"
+  )
+```
+:::
+::::
+
+## Add the `aesthetics` 
+
+We'll concentrate on mapping the e-car share on the district level.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# map aethetics
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    # add the attribute we want to map
+    aes(fill = ecar_share)
+  ) + 
+  # choose a continuous palette 
+  scale_fill_continuous() 
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# map aethetics
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    # add the attribute we want to map
+    aes(fill = ecar_share)
+  ) + 
+  # choose a continuous palette 
+  scale_fill_continuous() 
+```
+:::
+::::
+
+## The map layer 
+
+Are you having trouble choosing the right color? There are some excellent tutorials out there, f.e. by [Michael Toth](https://michaeltoth.me/a-detailed-guide-to-ggplot-colors.html).
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# change color palette
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share)
+  ) + 
+  # readable with color vision deficiencies
+  scale_fill_viridis_c(option = "plasma") 
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# change color palette
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share)
+  ) + 
+  # readable with color vision deficiencies
+  scale_fill_viridis_c(option = "plasma") 
+```
+:::
+::::
+
+## The map layer 
+
+You are changing your map, step by step.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    # make the borders disappear
+    color = NA
+  ) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    # change scale direction
+    direction = -1
+  )  
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    # make the borders disappear
+    color = NA
+  ) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    # change scale direction
+    direction = -1
+  )  
+```
+:::
+::::
+
+## Add another layer
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# realizing that my shapefile includes
+# polygons of oceans and lakes
+# easy fix on the fly when you know your data
+german_states <-
+  german_states |>  
+  dplyr::filter(GF == 4)
+
+# add layer with German states
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma", 
+    direction = -1
+  ) +
+  # add another layer
+  geom_sf(
+    data = german_states, 
+    # filling transparent
+    fill = "transparent",
+    # color of borders
+    color = "black", 
+    # size of borders
+    size = 1
+  )  
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# realizing that my shapefile includes
+# polygons of oceans and lakes
+# easy fix on the fly when you know your data
+german_states <-
+  german_states |>  
+  dplyr::filter(GF == 4)
+
+# add layer with German states
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma", 
+    direction = -1
+  ) +
+  # add another layer
+  geom_sf(
+    data = german_states, 
+    # filling transparent
+    fill = "transparent",
+    # color of borders
+    color = "black", 
+    # size of borders
+    size = 1
+  )  
+```
+:::
+::::
+
+## Dealing with the Legend 
+
+You can deal with everything concerning the legend (labels, titles, width...) within the scale argument. The only thing you cannot change here is the position in relation to the map.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    # add a legend title
+    name = "E-Car Share",
+    # adjust legend
+    guide = guide_legend(
+      # turn it horizontal
+      direction= "horizontal",
+      # put the labels
+      # under the legend bar
+      label.position = "bottom"
+    )
+  ) + 
+  geom_sf(
+    data = german_states, 
+    fill = "transparent", 
+    color = "black"
+  ) 
+
+# check the help file for more options ?guide_legend
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    # add a legend title
+    name = "E-Car Share",
+    # adjust legend
+    guide = guide_legend(
+      # turn it horizontal
+      direction= "horizontal",
+      # put the labels
+      # under the legend bar
+      label.position = "bottom"
+    )
+  ) + 
+  geom_sf(
+    data = german_states, 
+    fill = "transparent", 
+    color = "black"
+  ) 
+
+# check the help file for more options ?guide_legend
+```
+:::
+::::
+
+## Save and reuse
+
+Maps produced with `ggplot2` are standard objects like any other object in `R` (they are lists). We can just assign them to re-use, plot later, and add map layers.
+
+Furthermore, you can save them just as any `ggplot2` graph. The `ggsave()` function automatically detects the file format. You can also define the height, width, and dpi, which is particularly useful to produce high-class graphics for publications.
+
+## Save and reuse
+```{r}
+# assign to object
+ecar_map <- 
+  ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = ecar_share), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    name = "E-Car Share",
+    guide = guide_legend(
+      direction= "horizontal",
+      label.position = "bottom"
+    )
+  ) + 
+  geom_sf(
+    data = german_states, 
+    fill = "transparent", 
+    color = "black"
+  ) 
+
+# save as png-file
+# ggsave("ecar_map.png", ecar_map, dpi = 300)
+```
+
+## Get rid of everything?!
+
+The `theme` controls all 'non-data' display. If you want to get rid of the default `ggplot2` theme, you can do so. But instead of getting rid of everything, you might want to try out the built-in themes.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# use the object ecar_map as base layer
+ecar_map +
+  # empty your theme
+  theme_void() 
+
+
+# ... or add another
+# theme_bw()
+# theme_gray()
+# theme_light()
+
+# check all themes here
+# ?theme
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# use the object ecar_map as base layer
+ecar_map +
+  # empty your theme
+  theme_void() 
+
+
+# ... or add another
+# theme_bw()
+# theme_gray()
+# theme_light()
+
+# check all themes here
+# ?theme
+```
+:::
+::::
+
+## Build your own `theme` 
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# building a theme
+ecar_map +
+  theme_void() + 
+  # bold text elements
+  theme(
+    title = element_text(face = "bold"), 
+    # move legend to bottom of map
+    legend.position = "bottom", 
+    # change background color
+    panel.background = 
+      element_rect(fill = "lightgrey")
+  )
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# building a theme
+ecar_map +
+  theme_void() + 
+  # bold text elements
+  theme(
+    title = element_text(face = "bold"), 
+    # move legend to bottom of map
+    legend.position = "bottom", 
+    # change background color
+    panel.background = 
+      element_rect(fill = "lightgrey")
+  )
+```
+:::
+::::
+
+
+## Adding `labs`
+
+There is one necessary step to do. You should always make sure to include and cite your data sources. Especially in graphs and maps, you can use a short version to include them in the description directly.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+ecar_map +
+  # add title
+  labs(
+    title = 
+      "E-Car Share in Germany",   
+    # add sub-title
+    subtitle = 
+      "Where are the regional differences across German districts?",   
+    # add source
+    caption =  
+      "© Bundesnetzagentur"
+  ) 
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+ecar_map +
+  # add title
+  labs(
+    title = 
+      "E-Car Share in Germany",   
+    # add sub-title
+    subtitle = 
+      "Where are the regional differences across German districts?",   
+    # add source
+    caption =  
+      "© Bundesnetzagentur"
+  ) 
+```
+:::
+::::
+
+
+## Exercise 2_3_1: Advanced Maps: The Basis
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R/exercises/2_3_1_Advanced_Maps_Basis_question.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R/solutions/2_3_1_Advanced_Maps_Basis_solution.html)
+
+## To be continued...
+
+Our code in total has already grown pretty much. Without going into too much detail, the next slides showcase some more changes you can do with your maps
+
+**A map is never finished until you decide not to work on it anymore.**
+
+## Creating a city layer for city labels
+
+```{r}
+# create a german city layer by choosing the five districts
+# with the highest pop density
+
+districts_centroids <-
+  german_districts_enhanced |>  
+  # calculate pop_dens
+  dplyr::mutate(
+    pop_dens = population / sf::st_area(german_districts_enhanced)
+    ) |> 
+  # filter top 5 observation with highs pop_dens
+  dplyr::top_n(5, pop_dens) |>  
+  # take the centroid of each polygon and turn to
+  # polygon file into a vector
+  sf::st_centroid() 
+
+city_coordinates <-
+  districts_centroids |> 
+  sf::st_coordinates() |> 
+  as.data.frame() 
+
+german_cities <- 
+  dplyr::bind_cols(districts_centroids, city_coordinates) |> 
+  # add some city names as labels
+  dplyr::bind_cols(
+    data.frame(
+      names = c("City 1", "City 2", "City 3", "City 4", "City 5")
+    )
+  )
+
+german_cities |> 
+  dplyr::select(pop_dens, X, Y)
+```
+
+## Add City Labels
+
+Using `geom_label` to get a text box that holds a character string associated with an X- and Y-coordinate
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+ecar_map +
+  # add the label
+  geom_label(
+    data = german_cities, 
+    # don't need sf object but columns 
+    # with x- and  y-coordinate
+    aes(
+      x = X, y = Y, 
+      # column holding the character
+      # vector with strings
+      label = names
+    ),
+    # size of labels
+    size = 3,
+    # transparency
+    alpha = .8
+  )
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+ecar_map +
+  # add the label
+  geom_label(
+    data = german_cities, 
+    # don't need sf object but columns 
+    # with x- and  y-coordinate
+    aes(
+      x = X, y = Y, 
+      # column holding the character
+      # vector with strings
+      label = names
+    ),
+    # size of labels
+    size = 3,
+    # transparency
+    alpha = .8
+  )
+```
+:::
+::::
+
+## `ggplot2` and raster data
+
+You can also use `ggplot2` to create maps with raster data. There are several ways to do so. The easiest way is using the `tidyterra` package
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+cologne_immigrants <- 
+  terra::rast("../../data/immigrants_cologne.tif")
+
+ggplot() +
+  tidyterra::geom_spatraster(
+    data = cologne_immigrants, 
+    aes(fill = immigrants_cologne)
+  ) +
+  # set na values transparent
+  scale_fill_continuous(
+    na.value = "transparent"
+  ) +
+  # remove theme
+  theme_void()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+cologne_immigrants <- 
+  terra::rast("../../data/immigrants_cologne.tif")
+
+ggplot() +
+  tidyterra::geom_spatraster(
+    data = cologne_immigrants, 
+    aes(fill = immigrants_cologne)
+  ) +
+  # set na values transparent
+  scale_fill_continuous(
+    na.value = "transparent"
+  ) +
+  # remove theme
+  theme_void()
+```
+:::
+::::
+
+## Where `ggplot2` cannot help anymore
+  
+In some specific circumstances, we might realize that `ggplot2` is super powerful but just not designed to build maps. Typical features of maps are not in the package, like a compass or scale bars.
+
+This is where other packages might need to be installed. The good thing:
+Elements of the package `ggspatial` can be included as `ggplot2` layer.
+Checkout [Github](https://paleolimbot.github.io/ggspatial/).
+
+## The extras
+
+`ggspatial` allows you to add, f.e. a scale bar and a north arrow.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# add scalebar and north arrow
+ecar_map +
+  ggspatial::annotation_scale(
+    location = "br"
+  ) +
+  ggspatial::annotation_north_arrow(
+    location = "tr", 
+    style = ggspatial::north_arrow_minimal()
+  )
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# add scalebar and north arrow
+ecar_map +
+  ggspatial::annotation_scale(
+    location = "br"
+  ) +
+  ggspatial::annotation_north_arrow(
+    location = "tr", 
+    style = ggspatial::north_arrow_minimal()
+  )
+```
+:::
+::::
+
+## Exercise 2_3_2:
+
+**Create your best Map!**

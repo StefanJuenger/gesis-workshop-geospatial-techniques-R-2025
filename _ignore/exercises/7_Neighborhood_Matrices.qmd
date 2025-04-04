@@ -1,0 +1,246 @@
+---
+title: "Exercise 7: Neighborhood Matrices"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+Thus far, we have only used Queen neighborhood matrices with our data. Let's use this exercise to try out different variations. First of all, run the code below to compile the data that were also used in the lecture.
+
+```{r}
+#| eval: false
+voting_districts <-
+  sf::st_read("./data/Stimmbezirk.shp") |> 
+  dplyr::transmute(Stimmbezirk = as.numeric(nummer)) |> 
+  sf::st_transform(3035)
+
+afd_votes <-
+  glue::glue(
+    "https://www.stadt-koeln.de/wahlen/bundestagswahl/09-2021/praesentation/\\
+    Open-Data-Bundestagswahl476.csv"
+  ) |> 
+  readr::read_csv2() |> 
+  dplyr::transmute(Stimmbezirk = `gebiet-nr`, afd_share = (F1 / F) * 100)
+
+election_results <-
+  dplyr::left_join(
+    voting_districts,
+    afd_votes,
+    by = "Stimmbezirk"
+  )
+
+iimmigrants_cologne <- terra::rast("./data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("./data/inhabitants_cologne.tif")
+
+immigrant_share_cologne <-
+  (immigrants_cologne / inhabitants_cologne) * 100
+
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    immigrant_share = 
+      exactextractr::exact_extract(
+        immigrant_share_cologne, election_results, 'mean', progress = FALSE
+      ),
+    inhabitants = 
+      exactextractr::exact_extract(
+        inhabitants_cologne, election_results, 'mean', progress = FALSE
+      )
+  )
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+voting_districts <-
+  sf::st_read("../../data/Stimmbezirk.shp") |> 
+  dplyr::transmute(Stimmbezirk = as.numeric(nummer)) |> 
+  sf::st_transform(3035)
+
+afd_votes <-
+  glue::glue(
+    "https://www.stadt-koeln.de/wahlen/bundestagswahl/09-2021/praesentation/\\
+    Open-Data-Bundestagswahl476.csv"
+  ) |> 
+  readr::read_csv2() |> 
+  dplyr::transmute(Stimmbezirk = `gebiet-nr`, afd_share = (F1 / F) * 100)
+
+election_results <-
+  dplyr::left_join(
+    voting_districts,
+    afd_votes,
+    by = "Stimmbezirk"
+  )
+
+immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("../../data/inhabitants_cologne.tif")
+
+immigrant_share_cologne <-
+  (immigrants_cologne / inhabitants_cologne) * 100
+
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    immigrant_share = 
+      exactextractr::exact_extract(
+        immigrant_share_cologne, election_results, 'mean', progress = FALSE
+      ),
+    inhabitants = 
+      exactextractr::exact_extract(
+        inhabitants_cologne, election_results, 'mean', progress = FALSE
+      )
+  )
+```
+
+### Exercises
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+As in the lecture, create a neighborhood (weight) matrix, but this time, do it for Queen and Rook neighborhoods. Also, apply a row normalization.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+You could either use the `sdep` package with its function `spdep::poly2nb()` or the more modern approach of the `sfdep` package using the function `sfdep::st_contiguity()`. In both cases, you have to set the option `queen = FALSE` for Rook neighborhoods.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+We have not used them, but you can also create distance-based weight matrices. Use the package of your choice again and create weights for a distance between 0 and 5000 meters. Use again row-normalization.
+
+You must also convert the polygon data to point coordinates for this exercise. We'd propose to use the centroids for this task:
+
+`election_results_centroids <- sf::st_centroid(election_results)`
+
+Use a map to corroborate this conversion was successful. 
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+If you use `spdep`, use the function `spdep::dnearneigh()`; if you use `sfdep`, use the function `sfdep::st_dist_band()`.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 3
+Now, let's see how these different spatial weights perform in an analysis. Calculate Moran's I and Geary's C for each one of the weights and report their results for the variable `afd_share`.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+It is essential to which path you have taken before -- using `spdep` and `sfdep` -- as it determines how you solve this exercise.
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+```{r}
+# spdep
+queen_neighborhood <-
+  spdep::poly2nb(
+    election_results,
+    queen = TRUE
+  )
+
+queen_W <- spdep::nb2listw(queen_neighborhood, style = "W")
+
+rook_neighborhood <-
+  spdep::poly2nb(
+    election_results,
+    queen = FALSE
+  )
+
+rook_W <- spdep::nb2listw(rook_neighborhood, style = "W")
+
+# sfdep
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    queen_neighborhood = sfdep::st_contiguity(election_results, queen = TRUE),
+    queen_W = sfdep::st_weights(queen_neighborhood),
+    rook_neighborhood = sfdep::st_contiguity(election_results, queen = FALSE),
+    rook_W = sfdep::st_weights(rook_neighborhood)
+  )
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+```{r}
+library(ggplot2)
+
+# convert to centroids
+election_results_centroids <- sf::st_centroid(election_results)
+
+ggplot() +
+  geom_sf(data = election_results_centroids, color = "black")
+
+# spdep
+distance_neighborhood_5000 <-
+  spdep::dnearneigh(election_results_centroids, 0, 5000)
+
+distance_neighborhood_5000_W <- 
+  spdep::nb2listw(distance_neighborhood_5000, style = "W")
+
+# sfdep
+election_results_centroids <-
+  election_results_centroids |> 
+  dplyr::mutate(
+    neighbors_5000 = sfdep::st_dist_band(election_results_centroids, 0, 5000),
+    weights_5000 = sfdep::st_weights(neighbors_5000)
+  )
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 3
+```{r}
+# spdep
+spdep::moran.test(election_results$immigrant_share, listw = queen_W)
+spdep::moran.test(election_results$immigrant_share, listw = rook_W)
+spdep::moran.test(
+  election_results_centroids$immigrant_share, 
+  listw = distance_neighborhood_5000_W
+)
+
+spdep::geary.test(election_results$immigrant_share, listw = queen_W)
+spdep::geary.test(election_results$immigrant_share, listw = rook_W)
+spdep::geary.test(
+  election_results_centroids$immigrant_share, 
+  listw = distance_neighborhood_5000_W
+)
+
+# sfdep
+library(magrittr)
+
+election_results %$% 
+  sfdep::global_moran_test(immigrant_share, queen_neighborhood, queen_W)
+
+election_results %$% 
+  sfdep::global_moran_test(immigrant_share, rook_neighborhood, rook_W)
+
+election_results_centroids %$% 
+  sfdep::global_moran_test(immigrant_share, neighbors_5000, weights_5000)
+
+election_results %$% 
+  sfdep::global_c_test(immigrant_share, queen_neighborhood, queen_W)
+
+election_results %$% 
+  sfdep::global_c_test(immigrant_share, rook_neighborhood, rook_W)
+
+election_results_centroids %$% 
+  sfdep::global_c_test(immigrant_share, neighbors_5000, weights_5000)
+```
+:::

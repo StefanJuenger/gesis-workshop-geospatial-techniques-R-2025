@@ -1,0 +1,152 @@
+---
+title: "Exercise 2_2: Basic Raster Operations"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+### Exercises
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+
+Create a matrix with 8 rows and 8 columns filled with random numbers between 1 and 1000.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+You can create the numbers using the `sample()` function.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+
+Now, use this matrix to create a raster layer and plot it.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+The `terra::rast()` function can be fed with matrices to create a raster layer.
+:::
+
+The `terra::rast()` function can not only be used to create raster data on the fly, which is also quite boring. Instead, we can use it to import already prepared data.
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 3
+
+Import one of the raster `.tiff` files in the `./data` folder of the workshop directory.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+Make sure your file paths are set correctly. You can check them with `getwd()`. Setting is done with `setwd()`.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 4
+
+Import the data on immigrants and inhabitants. Create a new layer showing the proportion of immigrants in each grid cell between 0 and 1. Next, apply z-standardization and dichotomize the data to get information about which grid cells deviate from the overall mean. Plot both "versions" of the data to see how they compare.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+You can handle raster layers as any simple data table using `+`, `-`, or `/` operators. Z-standardization can be applied using the `terra::scale()` function.
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+
+```{r}
+fancy_matrix <-
+  sample(1:1000, 8*8, replace = TRUE) |> 
+  matrix(nrow = 8, ncol = 8)
+
+fancy_matrix
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+
+```{r}
+library(terra)
+
+fancy_raster_layer <- terra::rast(fancy_matrix)
+
+terra::plot(fancy_raster_layer)
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 3
+
+```{r}
+#| eval: false
+immigrants_cologne <- terra::rast("./data/immigrants_cologne.tif")
+```
+
+```{r}
+#| echo: false
+immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 4
+
+```{r}
+#| eval: false
+# load all layers
+immigrants_cologne <- terra::rast("./data/immigrants_cologne.tif")
+
+inhabitants_cologne <-  terra::rast("./data/inhabitants_cologne.tif")
+
+# create proportation layer
+immigrants_proportion <- immigrants_cologne / inhabitants_cologne
+
+# scale data
+immigrants_proportion_scaled <- terra::scale(immigrants_proportion)
+
+immigrants_proportion_scaled[immigrants_proportion_scaled < 0] <- 0
+immigrants_proportion_scaled[immigrants_proportion_scaled > 0] <- 1
+
+terra::plot(immigrants_proportion)
+
+terra::plot(immigrants_proportion_scaled)
+```
+
+```{r}
+#| echo: false
+# load all layers
+immigrants_cologne <-  terra::rast("../../data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("../../data/inhabitants_cologne.tif")
+
+# create proportation layer
+immigrants_proportion <- immigrants_cologne / inhabitants_cologne
+
+# scale data
+immigrants_proportion_scaled <- terra::scale(immigrants_proportion)
+
+immigrants_proportion_scaled[immigrants_proportion_scaled < 0] <- 0
+immigrants_proportion_scaled[immigrants_proportion_scaled > 0] <- 1
+
+terra::plot(immigrants_proportion)
+
+terra::plot(immigrants_proportion_scaled)
+```
+:::

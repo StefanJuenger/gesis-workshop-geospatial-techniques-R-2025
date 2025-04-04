@@ -1,0 +1,108 @@
+---
+title: "Exercise 2_1: Import Vector Data"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+### Exercises
+
+Let's get started with some hands-on exercises and exploring some data! This exercise focuses on importing different vector data geometries from various data sources and getting used to simple feature data tables.
+
+In the folder `./data`, you can find the data files prepped for all the exercises which rely on preexisting data sets. However, if you like to play around with your own data, feel free to do so!
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+
+Load the administrative borders of Germany. Therefore, import the shapefile `VG250_STA.shp` from the respective folder and assign it to an object named "germany".
+
+Plot the newly created object.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+Don't forget to load the packages `sf` and set your working directory before starting this exercise.
+:::
+
+The output in the console of `R` gives you already some information on the data you just loaded. You also see that the object `germany` appeared in your environment. Though, we will explore the data set a little bit closer.
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+
+Explore the data and answer the following questions:
+
+-   What is the geometry type?
+-   What is the id of the coordinate reference system?
+-   Which kind of class is the object?
+-   What is the name of the column containing the information on geometries?
+-   Which attributes are assigned to the geometries?
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 3
+
+Do you have an idea why there are 11 observations instead of only 1, even though we expected a shapefile with the polygon of Germany? Create a new object that contains only one observation filtered by the variable `GF == 4`.
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+
+```{r}
+#| eval: false
+library(sf)
+
+germany <- sf::read_sf("./data/VG250_STA.shp") 
+
+plot(germany)
+```
+
+```{r}
+#| echo: false
+library(sf)
+
+germany <- sf::read_sf("../../data/VG250_STA.shp") 
+
+plot(germany)
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+
+```{r}
+sf::st_geometry(germany) # Multipolygon: Set of several Polygons. Each row is a polygon.
+
+class(germany) # "sf", "tbl_df", "tbl" and "data.frame"
+
+attr(germany, "sf_column") # geometry
+
+sf::st_crs(germany) # ETRS89, ID = EPSG:25832
+
+names(germany) # Name, Area Type, Area Size, Population Size ,...
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 3
+
+```{r}
+# It seems like the shapefile contains not only Germany's land area but also coastal areas and lakes.
+# filter 
+germany_new <-
+  germany |> 
+  dplyr::filter(GF == 4)
+
+plot(germany_new)
+```
+:::

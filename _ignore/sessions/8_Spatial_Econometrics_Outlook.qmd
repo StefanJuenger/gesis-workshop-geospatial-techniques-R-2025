@@ -1,0 +1,30 @@
+---
+title: "Spatial Econometrics & Outlook"
+author: "Stefan Jünger & Dennis Abel"
+date: April 10, 2025
+execute:
+  echo: true
+format:
+  revealjs:
+    embed-resources: true
+    theme: [simple, tweaks.css]
+    smaller: true
+    scrollable: true
+    slide-number: "c/t"
+    navigation-mode: vertical
+    logo: ../img/GESIS-Logo_2024.svg.png
+    # fig-dpi: 300
+    fig-align: "center"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Now
+
+```{r}
+#| echo: false
+source("course_content.R") 
+
+course_content |> 
+  kableExtra::row_spec(14, background = "yellow")
+```

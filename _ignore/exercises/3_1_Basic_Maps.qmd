@@ -1,0 +1,160 @@
+---
+title: "Exercise 3_1: Basic Maps"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+### Exercises
+
+We've finally arrived at creating our first maps based on the data we imported and cleaned in the previous sessions. The focus of this first session lies on the package `tmap` to create maps.
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+
+Let's start with some data wrangling. Import the German district data `./data/VG250_KRS.shp` using the function `sf::read_sf()` and the spreadsheet data `../data/attributes_districts.csv` which contains additional attributes. Join them using the column `AGS`. Finally, create a map with only the outline of Germany and one where the districts' borders are visible. Choose a color of your choice for both maps.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+If you're stuck with the data wrangling, try this code:
+
+```{r}
+#| eval: false
+# load libraries
+library(dplyr)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("./data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("./data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+```
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+
+In the second step, we want to visualize some information on the German districts contained in the attribute table. Choose a column of interest and create a map. Alternate the map by:
+
+- add a legend title and change the color palette
+- add a title to the map and change the font color of the title
+
+Assign your map to an object called `ger_map`.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+Combine the following options with a plus sign:
+
+- add a legend title and change the color palette: `tm_fill(fill = "", fill.legend = tm_legend(title = ""), fill.scale = tm_scale_continuous(values = "")) +`
+- add a title to the map and change the font color of the title: `tm_title(text = "", color = "") +`
+
+If you run `cols4all::c4a_gui()`, R fires up a nice graphical interface to search for colors.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+To assign your map to an object, use the arrow `<-`.
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+
+```{r}
+#| eval: false
+# load libraries
+library(dplyr)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("./data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("./data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# first maps based on geometrc features
+tm_shape(german_districts_enhanced) + # call  the shapefile first
+  tm_fill() # fills the polygons without drawing borders
+
+# ... or use tm_polygons
+tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = "lightblue") # fills the polygons and draws borders
+```
+
+```{r}
+#| echo: false
+# load libraries
+library(dplyr)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("../../data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("../../data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# first maps based on geometrc features
+tm_shape(german_districts_enhanced) + # call  the shapefile first
+  tm_fill(col = "lightgrey") # fills the polygons without drawing borders
+
+# ... or use tm_polygons
+tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = "lightblue") # fills the polygons and draws borders
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+
+```{r}
+ger_map <-
+  tm_shape(german_districts_enhanced) + 
+  tm_fill(
+    fill = "publictransport_meandist", # "col" can be the name of a color or a column name
+    fill.legend = tm_legend(title = "Mean Distances to Stops"), # add a title to the legend
+    fill.scale = tm_scale_continuous(values = "oslo") # add palette
+  )  +
+  tm_title(
+    text = "Access Public Transport",  # alternate the overall layout like title
+    color = "blue" # changes the font color of the title +
+  )         
+
+ger_map
+```
+:::

@@ -1,0 +1,1436 @@
+---
+title: "Introduction to Geospatial Techniques for Social Scientists in R"
+subtitle: "Mapping"
+author: "Stefan Jünger & Anne-Kathrin Stroppe"
+date: June 06, 2022
+institute: |
+  GESIS Workshop
+presenter: Anne
+---
+layout: true
+
+```{r child = "./content/config/sessions_setup.Rmd"}
+```
+
+---
+
+## Now
+
+```{r course-content-now, echo = FALSE}
+course_content %>%
+  kableExtra::row_spec(4, background = "yellow")
+```
+
+---
+
+## Fun With Flags... MAPS!
+
+.center[
+```{r fun-flags, echo = FALSE, out.width = "90%"}
+woRkshoptools::include_picture("fun_with_flags.jpg")
+```
+]
+<br>
+.center[
+<small><small><small> Fun with Flags by Dr. Sheldon Cooper. [Big Bang Theory](https://youtu.be/_e8PGPrPlwA)</small></small></small>
+]
+
+---
+
+## Fun with maps
+
+.pull-left[
+`plot()` does not allow us to manipulate the maps in an easy. But we already have the two most essential ingredients to create a nice map:
+
+1. Vector data stored in the `./data` folder
+2. Some (hopefully) interesting attributes linked with the geometries.
+]
+
+.pull-right[
+```{r attributed-cologne, echo = FALSE}
+
+cologne <- 
+  sf::read_sf("./data/cologne.shp") 
+
+attributed_cologne <- 
+  cologne %>% 
+  dplyr::mutate(id = as.numeric(NUMMER)) %>% 
+  dplyr::select(id) %>% 
+  dplyr::left_join(.,
+                   readr::read_delim("./data/carytpes_cologne.csv", delim = ";"),
+                   by = "id") %>% 
+  dplyr::left_join(.,
+                   readr::read_delim("./data/EUelection2019_cologne.csv", delim = ";") %>%
+                     dplyr::select(-name),
+                   by = "id") %>% 
+  dplyr::rename_with(~ stringr::str_remove(., "_shr*"), everything())
+
+
+charger_cologne <-
+readr::read_delim("./data/charging_points_ger.csv", 
+                                  delim =";") %>% 
+   filter(!is.na(longitude) & !is.na(latitude)) %>% 
+  sf::st_as_sf(
+    .,    
+    coords = c("longitude", "latitude"),
+    crs = 4326
+  ) %>% 
+  sf::st_transform(. , crs = 3035) %>% 
+  sf::st_intersection(., cologne %>%  dplyr::select(NUMMER))
+
+streets_cologne <-
+  sf::read_sf(
+    "./data/streets_cologne.shp"
+  )
+
+plot(attributed_cologne["ecar"])
+```
+]
+
+---
+
+## Cologne data
+
+```{r load-in-data, eval = FALSE}
+
+attributed_cologne <-
+  sf::read_sf("./data/attributed_cologne.shp")  
+
+charger_cologne <- sf::read_sf("./data/charger_cologne.shp")
+
+streets_cologne <- sf::read_sf("./data/streets_cologne.shp")
+
+```
+
+---
+
+## What makes a good map?
+
+<br>
+.pull-left[
+**Good Mapping**
+- reduction to most important information
+- legends, scales, descriptions
+- audience oriented
+- adjusted for color vision deficiencies
+]
+
+--
+
+.pull-right[
+**Bad Mapping**
+- overcrowding and overlapping
+- unreadable information
+- missing information like the legend or source 
+- poor choice of color palettes
+]
+
+---
+
+## What makes a good map?
+
+.pull-left[
+.center[![](https://media.giphy.com/media/C9x8gX02SnMIoAClXa/giphy-downsized-large.gif)]
+.tinyisher[.center[[Source](https://media.giphy.com/media/C9x8gX02SnMIoAClXa/giphy-downsized-large.gif)]]
+]
+
+.pull-right[
+... but there is one other type:
+
+.center[
+**The fast but nice map.**
+]
+
+- fast exploration of spatial data by visualizing the geometries and attributes
+- might not be publication-ready yet, but they are more rewarding than just plotting information.
+]
+
+---
+
+## The choice is Yours: `R` Packages for Mapping
+
+<br>
+<br>
+As always, `R`  offers several ways to map spatial data, and the provided packages are various.
+What is out there? Just a few:
+- base R graphics package: [`mapdata`](https://rpubs.com/rbatzing/mapping)
+- mobile-friendly interactive maps: [`leaflet`](https://rstudio.github.io/leaflet/)
+- interactive and static thematic maps based on shapefiles:
+- [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)
+- [`mapview`](https://r-spatial.github.io/mapview/)
+
+
+---
+
+## Our Choice Today
+
+Today, we'll concentrate on the package [`tmap`](https://cran.r-project.org/web/packages/tmap/index.html)
+- very intuitive and makes "good" decisions for us
+- the syntax is very similar to [`ggplot2`](https://cran.r-project.org/web/packages/ggplot2/index.html)* 
+
+```{r world-map, echo = FALSE, out.width="50%"}
+woRkshoptools::include_picture("68747470733a2f2f6d74656e6e656b65732e6769746875622e696f2f646f776e6c6f6164732f696d616765732f636c61737369632e706e67.png")
+```
+.tinyisher[.center[[Source](https://www.researchgate.net/figure/Classic-world-map-consisting-of-gridded-elevation-data-rivers-country-borders-and_fig7_324652152)]]
+
+.footnote[*A wide-known 'secret' is that `tmap` creates a map based on `ggplot2`, so `ggplot2`-specific graphics manipulations will work as well.]
+
+---
+
+## First Map: Cologne Electric Car Data
+
+.pull-left[
+```{r first-map, eval = FALSE}
+library(tmap)
+
+tm_shape(attributed_cologne) +
+  tm_fill("ecar")
+```
+]
+
+--
+
+.pull-right[
+```{r first-map-exec, echo = FALSE}
+library(tmap)
+
+tm_shape(attributed_cologne) +
+  tm_fill("ecar")
+```
+]
+
+
+---
+
+## `tmap` In a Nutshell
+
+.pull-left[
+There is not much to consider when using `tmap` but two essential requirements:
+1. Define your spatial object.
+2. Choose a building block to determine how to display information.
+]
+
+--
+
+.pull-right[
+```{r tmap-display, eval = FALSE}
+# define and introduce every (new) 
+# geospatial data object
+tm_shape() +
+  
+  # choose at least one building block as 
+  # 'aesthetic layer'
+  
+  # for polygon layer choose from:
+  tm_fill() + # polygons without borders
+  tm_polygons() +  # polygons with borders
+  tm_borders() + # only borders of polygons
+  
+  # for line layer choose:
+  tm_lines() +
+  
+  # for point layer choose:
+  tm_dots() +
+  tm_bubbles() +
+  
+  # for raster layer choose
+  tm_raster() +
+  tm_rgb() +
+  
+  ...
+
+# for all of them:
+?'tmap-element'
+```
+]
+
+---
+
+## `tmap` In a Nutshell: Polygon Layer
+
+.pull-left[
+```{r pol-layer-disp, eval=F}
+tm_shape(attributed_cologne) +
+  tm_fill()
+
+tm_shape(attributed_cologne) +
+  tm_polygons()
+
+tm_shape(attributed_cologne) +
+  tm_borders()
+```
+]
+
+--
+
+.pull-right[
+```{r pol-layer, echo=F, fig.height=3}
+tm_shape(attributed_cologne) +
+  tm_fill()
+
+tm_shape(attributed_cologne) +
+  tm_polygons()
+
+tm_shape(attributed_cologne) +
+  tm_borders()
+```
+]
+
+---
+
+## `tmap` In a Nutshell: Line and Point Layer
+
+.pull-left[
+```{r line-layerdisp, eval=F, fig.height=4}
+tm_shape(streets_cologne) +
+  tm_lines()
+
+tm_shape(charger_cologne) +
+  tm_dots()
+```
+]
+
+--
+
+.pull-right[
+```{r line-layer, echo = F, fig.height=4 }
+tm_shape(streets_cologne) +
+  tm_lines()
+
+tm_shape(charger_cologne) +
+  tm_dots()
+```
+]
+
+---
+
+## `tmap` In a Nutshell: Put It All Together
+
+We can map the geometric attributes as single layers, but we can also layer our map and stack the layers on each other.
+
+--
+
+.pull-left[
+```{r over-lay-disp, eval = F}
+tm_shape(attributed_cologne) +
+  tm_polygons() +
+  tm_shape(streets_cologne) +
+  tm_lines() +
+  tm_shape(charger_cologne) +
+  tm_dots(col = "red")
+```
+]
+
+--
+
+.pull-right[
+```{r over-lay, echo = F}
+tm_shape(attributed_cologne) +
+  tm_polygons() +
+  tm_shape(streets_cologne) +
+  tm_lines() +
+  tm_shape(charger_cologne) +
+  tm_dots(col = "red")
+```
+]
+
+
+---
+
+## Add Some Information
+
+<br>
+<br>
+
+After we took care of our geometric types, we want to add some information to our data.
+The inner construction of each building block of `tm_elements` is the same.
+1. Define the variable of interest first by stating the column name. 
+2. Add a name for the legend title and color palette, adjust the legend and scales ...
+
+---
+
+## Choosing an Attribute
+
+.pull-left[
+```{r life-exp-disp, eval = F}
+tm_shape(attributed_cologne) +
+  tm_polygons("ecar") 
+```
+]
+
+--
+
+.pull-right[
+.center[
+```{r life-exp, echo = F}
+tm_shape(attributed_cologne) +
+  tm_polygons("ecar") 
+```
+]
+]
+
+---
+
+## Choosing a Color Palette
+
+.pull-left[
+```{r add-attributes-disp, eval = F}
+tm_shape(attributed_cologne) +
+  tm_polygons(
+    "ecar",
+    palette = "RdPu",
+    title = "Electric Cars",
+    style = "kmeans"
+  ) 
+```
+]
+
+--
+
+.pull-right[
+.center[
+```{r add-attributes, echo = F}
+tm_shape(attributed_cologne) +
+  tm_polygons(
+    "ecar",
+    palette = "RdPu",
+    title = "Electric Cars",
+    style = "kmeans"
+  ) 
+```
+]
+]
+
+---
+
+## Re-Placing the Legend
+
+.pull-left[
+```{r add-attributes-disp-legend, eval = F}
+tm_shape(attributed_cologne) +
+  tm_polygons(
+    "ecar",
+    palette = "RdPu",
+    title = "Electric Car",
+    style = "kmeans"
+  ) +
+  tm_layout(
+    legend.outside = TRUE
+  )
+```
+]
+
+.pull-right[
+.center[
+```{r add-attributes-legend, echo = F}
+tm_shape(attributed_cologne) +
+  tm_polygons(
+    "ecar",
+    palette = "RdPu",
+    title = "Electric Car",
+    style = "kmeans"
+  ) +
+  tm_layout(
+    legend.outside = TRUE
+  )
+```
+]
+]
+
+---
+
+## Compasses & Scale Bars
+
+.pull-left[
+```{r compass-scalebar-I}
+tm_shape(attributed_cologne) +
+  tm_polygons("ecar") +
+  tm_scale_bar() +
+  tm_compass()
+```
+]
+
+--
+
+.pull-right[
+```{r compass-scalebar-II}
+tm_shape(attributed_cologne) +
+  tm_polygons("ecar") +
+  tm_scale_bar(position = "left") +
+  tm_compass(type = "4star")
+```
+]
+
+---
+
+class: middle
+
+## Exercise 1_3_1: Basic Maps
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/1_3_1_Basic_Maps.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/solutions/1_3_1_Basic_Maps.html)
+
+---
+
+## What's Left?
+
+<br>
+.center[
+```{r enough-maps, echo = FALSE, out.width = "70%"}
+woRkshoptools::include_picture("enough_maps.jpg")
+```
+]
+
+---
+
+
+## Getting Interactive (as an Alternative To `mapview::mapview()`)!
+
+.pull-left[
+```{r interactive-map, eval = FALSE}
+
+ecar_map <-
+tm_shape(attributed_cologne) +
+  tm_borders(col = "black") +
+  tm_polygons("ecar")
+
+tmap_mode("view")
+ecar_map
+
+```
+]
+
+.pull-right[
+```{r interactive-map-exec, echo = FALSE, eval = TRUE, out.width="80%", out.height="80%"}
+tmap_mode("view")
+
+ecar_map <-
+tm_shape(attributed_cologne) +
+  tm_borders(col = "black") +
+  tm_polygons("ecar")
+ecar_map 
+
+tmap_mode("plot")
+```
+]
+
+---
+
+## Facets I
+
+```{r facets-disp-I, out.width="55%"}
+
+ tm_shape(attributed_cologne) +
+    tm_polygons(c("cdu", "spd", "greens", "afd", "left", "fdp")) +
+    tm_facets( ncol = 3)
+
+```
+
+---
+
+## Facets II
+
+
+```{r facets-disp-II-disp, out.width="50%",  out.height="50%"}
+
+attributed_cologne %>%
+  dplyr::mutate(city_area = as.integer(substr(id, 1, 1))) %>% 
+  tm_shape(.) +
+    tm_polygons(c("ecar")) +
+    tm_facets(by = "city_area", nrow = 2) +
+    tm_layout(panel.labels = c("1 Innenstadt","2 Rodenkirchen","3 Lindenthal",
+                                "4 Ehrenfeld", "5 Nippes","6 Chorweiler",
+                                "7 Porz", "8 Kalk", "9 Mülheim")) 
+
+```
+
+
+
+
+
+
+---
+
+## Change Style
+
+```{r styles, out.width="55%"}
+
+tm_shape(attributed_cologne) +
+    tm_polygons("ecar") +
+  tm_style("classic") 
+# other available styles are: "beaver", "bw", "watercolor" ,
+# "white", "gray", "natural", "cobalt", "col_blind", "albatross",
+
+```
+
+---
+
+## Color Vision Deficiencies: Standard Palette
+
+```{r color-def, echo = FALSE, out.width="55%"}
+tmp <-
+  tm_shape(attributed_cologne) +
+  tm_polygons("ecar") +
+  tm_layout(legend.show = FALSE)
+
+colorBlindness::cvdPlot(tmp)
+```
+
+.tinyisher[Created with the package [`colorBlindness`](https://cran.r-project.org/web/packages/colorBlindness/index.html)]
+
+---
+
+## Color Vision Deficiencies: `Viridis` Palette
+
+```{r color-def-virdis, echo = FALSE, out.width="55%"}
+tmp <-
+  tm_shape(attributed_cologne) +
+  tm_polygons("ecar", palette = "viridis") +
+  tm_layout(legend.show = FALSE)
+
+colorBlindness::cvdPlot(tmp)
+```
+
+.tinyisher[Created with the package [`colorBlindness`](https://cran.r-project.org/web/packages/colorBlindness/index.html)]
+
+---
+
+## Animation
+
+`tm_animate` allows you to create animated maps and visualize changes in spatial data, e.g. over time or attributes.
+You can customize the animation's duration, frame rate, timeline sliders, and transition effects.
+
+.pull-left[
+```{r annimate-map, eval=F}
+
+
+vote_gif <- 
+  attributed_cologne %>% 
+   tidyr::pivot_longer(., 
+    cols = c("cdu", "spd", "greens", "afd", 
+             "left", "fdp"),  # Select all columns to pivot
+    names_to = "party_id",  # New column name for party identifier
+    values_to = "voteshare") # New column name for vote shares %>% 
+    tm_shape(.) +
+    tm_polygons(c("voteshare")) +
+    tm_facets(along = "party_id")  
+
+tmap_animation(vote_gif, 
+               filename = "./content/img/vote_gif.gif", 
+               delay=150) 
+
+
+```
+]
+
+.pull-right[
+```{r pic-formulas, echo = F, out.width="70%"}
+woRkshoptools::include_picture("vote_gif.gif")
+```
+]
+
+---
+
+## Save Maps
+
+`tmap` offers support for various output formats, including:
+- Static Images: PNG, JPEG, TIFF, etc.
+- Interactive Web Maps: HTML, JavaScript (using packages like leaflet).
+- Animated Maps: GIF, MP4, etc.
+
+You can also control width and height, dpi, etc.
+
+```{r save-maps, eval = F}
+
+# save regular map
+tmap_save(ecar_map, filename = "ecar_map.png")
+# save as interactive map
+tmap_save(ecar_map, filename = "ecar_map.html" )
+```
+
+
+---
+# Note On Mapping Responsible
+
+.pull-left[
+**In the best cases**, maps are easy to understand and an excellent way to transport (scientific) messages.
+]
+
+.pull-right[
+**In the worst cases**, they simplify (spurious) correlations and draw a dramatic picture of the world.
+]
+
+**Maps can shape narratives**
+- Decisions on which projection you use (remember the `true size` projector?), 
+- the segment of the world you choose, 
+- and the colors and styles you add have a strong influence.
+
+Example: [Kenneth Field's blog post](https://www.esri.com/arcgis-blog/products/product/mapping/mapping-coronavirus-responsibly/)
+
+---
+
+## More Resources
+
+<br>
+If you want to dive deeper into mapping with `tmap` check out:
+- Introduction by [Thomas Lo Russo](https://tlorusso.github.io/geodata_workshop/tmap_package)
+- Blogpost by [Hollie Zevross](http://zevross.com/blog/2018/10/02/creating-beautiful-demographic-maps-in-r-with-the-tidycensus-and-tmap-packages/)
+
+And if you want to get some inspiration, keep an eye out for the `#30DayMapChallenge` on Twitter.
+Repository of Last Year's Challenge [here](https://github.com/tjukanovt/30DayMapChallenge).
+
+---
+
+class: middle
+
+## Exercise 1_3_2: Fun with Maps
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/1_3_2_Fun_with_Maps.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/solutions/1_3_2_Fun_with_Maps.html)
+
+---
+
+class: middle
+## Add-on Slides: TMap Examples
+
+---
+
+## Map Examples: E-Mobility
+
+Instead of placing maps next to each other, we can also explore spatial correlations by adding layers.
+Another benefit of layering: We can make our map more realistic and aesthetic.
+
+For example, we can add a background layer of neighboring countries, a layer of German cities, or the German states' borders for orientation.
+Each layer can visualize another attribute of our map.
+
+For today, we want to add a layer of charging stations to the electric car map.
+
+
+```{r load-mapdata, echo = F,  warning = F, massage = F}
+
+# import data
+chargers_sf <- 
+   readr::read_delim("./data/charging_points_ger.csv", 
+                                  delim =";") %>% 
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) %>% 
+  sf::st_as_sf(.,
+    coords = c("longitude","latitude"),
+    crs = 4326)
+
+attributes_districts <- 
+  readr::read_delim("./data/attributes_districts.csv",
+                    delim = ";") 
+
+german_districts_enhanced <- 
+  sf::read_sf("./data/VG250_KRS.shp") %>% 
+  sf::st_transform(crs = 3035)  %>% 
+  dplyr::mutate(district_id = as.numeric(AGS)) %>% 
+  dplyr::select(district_id) %>% 
+  dplyr::left_join(attributes_districts, by = "district_id")  
+```
+
+
+
+---
+
+##  E-Mobility and Charging Stations 
+
+.pull-left[
+```{r ecar-map-disp, eval=F}
+
+# map e-car share
+ecar_map <- 
+  tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = 
+            "ecar_share",
+          title = 
+            "Electric Car Share",
+          palette = "viridis",
+          n=10,
+          style = "jenks"
+          ) +
+  tm_layout(main.title = 
+              "Electric Cars in Germany",
+            main.title.color = 
+              "black" ) +
+  tm_legend(legend.outside = 
+              TRUE,
+            legend.outside.position = 
+              "left")
+
+ecar_map
+
+```
+]
+
+.pull-right[
+```{r ecar-map, echo=F, warning=F, message=F}
+
+# map the ecar share
+ecar_map <- 
+ tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = 
+            "ecar_share",
+          title = 
+            "Electric Car Share",
+          palette = "viridis",
+          n = 10,
+          style = "jenks"
+          ) +
+  tm_layout(main.title = 
+              "Electric Cars in Germany",
+            main.title.color = 
+              "black" ) +
+  tm_legend(legend.outside = 
+              TRUE,
+            legend.outside.position = 
+              "left") 
+
+ecar_map
+ 
+```
+]
+
+---
+
+##  E-Mobility and Charging Stations 
+
+.pull-left[
+```{r charging-map-disp, eval=F}
+
+# map the charging stations on the e-car map
+ecar_chargers_map <- 
+  tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = 
+            "ecar_share",
+          title = 
+            "Electric Car Share",
+          palette = "viridis",
+          n = 10,
+         style = "jenks"
+          ) +
+  tm_layout(main.title = 
+              "Electric Cars in Germany",
+            main.title.color = 
+              "black" ) +
+  tm_legend(legend.outside = 
+              TRUE,
+            legend.outside.position = 
+              "left") +
+  # Add charging point data
+  tm_shape(chargers_sf) + 
+  tm_dots("power_kw", 
+          col = 
+            "lightgrey",
+          alpha = 0.1,
+          title.size = 
+            "Power of Charging Station (kW)") 
+
+ecar_chargers_map
+
+```
+]
+
+.pull-right[
+```{r charger-map, echo=F, warning=F, message=F}
+
+# map the hospitals on the covid-19 map
+ecar_chargers_map <- 
+ tm_shape(german_districts_enhanced) + 
+  tm_polygons(col = 
+            "ecar_share",
+          title = 
+            "Electric Car Share",
+          palette = "viridis",
+          n = 10,
+         style = "jenks"
+          ) +
+  tm_layout(main.title = 
+              "Electric Cars in Germany",
+            main.title.color = 
+              "black" ) +
+  tm_legend(legend.outside = 
+              TRUE,
+            legend.outside.position = 
+              "left") +
+  # Add charging point data
+  tm_shape(chargers_sf) + 
+  tm_dots("power_kw", 
+          col = 
+            "lightgrey",
+          alpha = 0.1,
+          title.size = 
+            "Power of Charging Station (kW)") 
+ 
+ecar_chargers_map
+```
+]
+
+---
+
+## German Federal Election 2021
+
+```{r btw-21_map, echo = F, warning = F, message = F}
+
+
+## District Shapefile
+german_districts <- 
+  # load data
+  sf::read_sf("./data/VG250_KRS.shp") %>% 
+  # transform to correct crs
+  sf::st_transform(crs = 3035) %>% 
+  # subsetting land area of Germany
+  dplyr::filter(GF == 4) %>% 
+  # only keep necessary cols
+  dplyr::select(AGS,geometry) 
+
+## BL Shapefile
+german_states <-
+  sf::read_sf("./data/VG250_LAN.shp") %>%  
+  # transform to correct crs
+  sf::st_transform(crs = 3035) %>% 
+  # subsetting land area of Germany
+  dplyr::filter(GF == 4) %>% 
+  # only keep necessary cols
+  dplyr::select(AGS,geometry) 
+
+
+
+
+## German Federal Election Results 21 
+### Abfrage bundeswahlleiter, 28.02.22
+### Wahlergebnisse nach kreisfreien Städten und Landkeisen
+### https://www.bundeswahlleiter.de/bundestagswahlen/2021/ergebnisse/weitere-ergebnisse.html
+
+btw21_krs <- 
+  # load data
+  read.csv2("./data/btw2021kreis_zweitstimme.csv",
+                   header= T,
+                   fill = T,
+                   sep= ";",
+                   dec = ",",   
+                   colClasses=c("character","character",rep("numeric",44)),
+                   encoding = "UTF-8", 
+                   strip.white = TRUE) %>% 
+  # correct name first col 
+  dplyr::rename(., AGS = 1)  %>% 
+  # compute vote shares
+  dplyr::mutate(
+    AGS = stringr::str_pad(.$AGS, 5, pad = "0"),
+    turnout = ((Ungültige + Gültige)/Wahlberechtigte) *100,
+    union_shr = ((CDU + CSU) / Gültige) * 100,
+    afd_shr = (AfD / Gültige) * 100,
+    fdp_shr = (FDP / Gültige) * 100,
+    spd_shr = (SPD / Gültige) * 100,
+    linke_shr = (DIE.LINKE / Gültige) * 100,
+    green_shr = (GRÜNE / Gültige) * 100,
+    sonstige_shr = (rowSums(.[14:46])/Gültige) * 100) %>% 
+  # select necessary vars
+  dplyr::select(AGS,turnout, ends_with(c("_shr"))) %>% 
+  # remove mean over all districts
+  dplyr::filter(. , AGS != "00000") %>% 
+  # aggregate east and west berlin
+  dplyr::mutate(. , AGS = ifelse(AGS == "11100" | AGS == "11200", 
+                                 "11000", AGS)) %>%
+  dplyr::group_by(AGS) %>% 
+  dplyr::summarise(across(everything(), list(mean))) %>% 
+  dplyr::rename_with(~stringr::str_remove(., '_1'))
+
+
+## correct for district that was reformed in 2022
+btw21_krs <-
+  btw21_krs %>% 
+  dplyr::filter(., AGS == "16063") %>% 
+  dplyr::mutate( AGS = "16056") %>% 
+  dplyr::bind_rows(btw21_krs,.)
+
+## join election results to shapefile
+german_districts_btw <- 
+  german_districts %>% 
+  dplyr::left_join(. , btw21_krs, by = "AGS") 
+
+# Prepare for mapping: Dataset for each party plus color
+
+union <-
+  german_districts_btw %>% 
+  dplyr::select(union_shr, geometry) %>% 
+  dplyr::mutate(party = "Union",
+         color = "#030303") %>% 
+  dplyr::rename(party_shr = union_shr)
+
+spd <-
+  german_districts_btw %>% 
+  dplyr::select(spd_shr, geometry) %>% 
+  dplyr::mutate(party = "SPD",
+         color = "#FF0000") %>% 
+  dplyr::rename(party_shr = spd_shr)
+
+fdp <-
+  german_districts_btw %>% 
+  dplyr::select(fdp_shr, geometry) %>% 
+  dplyr::mutate(party = "FDP",
+         color = "#FFFF00") %>% 
+  dplyr::rename(party_shr = fdp_shr)
+
+gruene <-
+  german_districts_btw %>% 
+  dplyr::select(green_shr, geometry) %>% 
+  dplyr::mutate(party = "Gruene",
+         color = "#66CD00") %>% 
+  dplyr::rename(party_shr = green_shr)
+
+linke <-
+  german_districts_btw %>% 
+  dplyr::select(linke_shr, geometry) %>% 
+  dplyr::mutate(party = "Linke",
+         color = "#8A2BE2") %>% 
+  dplyr::rename(party_shr =linke_shr)
+
+afd <-
+  german_districts_btw %>% 
+  dplyr::select(afd_shr, geometry) %>% 
+  dplyr::mutate(party = "AfD",
+         color = "#1E90FF") %>% 
+  dplyr::rename(party_shr = afd_shr)
+
+# bind the datasets
+party_shares <- rbind(union, spd, fdp, gruene, linke, afd)
+
+# plot
+
+## nested dataset
+by_party <- party_shares %>% 
+  dplyr::group_by(party, color) %>% 
+  tidyr::nest()
+
+## add list of party colors for figures
+party_colors <- c("#030303", "#FF0000", "#FFFF00", "#66CD00",
+                  "#8A2BE2", "#1E90FF")
+
+# custom party color palettes
+parties <- c("Union", "SPD", "FDP", "GRÜNE", "LINKE", "AfD")
+
+party_palette_fcts <- purrr::map(party_colors, ~ colorRampPalette(c("#FFFFFF",.x)))
+names(party_palette_fcts) <- paste0(parties,"_palette")
+
+union_palette <- party_palette_fcts[[1]](10)
+spd_palette <- party_palette_fcts[[2]](10)
+fdp_palette <- party_palette_fcts[[3]](10)
+gruene_palette <- party_palette_fcts[[4]](10)
+linke_palette <- party_palette_fcts[[5]](10)
+afd_palette <- party_palette_fcts[[6]](10)
+
+# labels for vote shares
+vs_labels <- c("0 bis 5", "5 bis 10", "10 bis 15", "15 bis 20", "20 bis 25",
+               "25 bis 30", "30 bis 35", "35 bis 40", "40 bis 45", "45 bis 50")
+
+# maps
+uni_btwshare_map <- tm_shape(subset(party_shares, party == "Union")) +
+  tm_polygons("party_shr",
+              title = "CDU/CSU",
+              palette = union_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+spd_btwshare_map <- tm_shape(subset(party_shares, party == "SPD")) +
+  tm_polygons("party_shr",
+              title = "SPD",
+              palette = spd_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T,
+            frame = F)
+
+fdp_btwshare_map <- tm_shape(subset(party_shares, party == "FDP")) +
+  tm_polygons("party_shr",
+              title = "FDP",
+              palette = fdp_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+gru_btwshare_map <- tm_shape(subset(party_shares, party == "Gruene")) +
+  tm_polygons("party_shr",
+              title = "Grüne",
+              palette = gruene_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T,
+            frame = F)
+
+lin_btwshare_map <- tm_shape(subset(party_shares, party == "Linke")) +
+  tm_polygons("party_shr",
+              title = "DIE LINKE",
+              palette = linke_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+afd_btwshare_map <- tm_shape(subset(party_shares, party == "AfD")) +
+  tm_polygons("party_shr",
+              title = "AfD",
+              palette = afd_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+# combine maps
+all_btwshare_map <- tmap_arrange(uni_btwshare_map, spd_btwshare_map, fdp_btwshare_map,
+                                 gru_btwshare_map, lin_btwshare_map, afd_btwshare_map,
+                                 ncol = 3)  
+all_btwshare_map
+
+# tmap_save(all_btwshare_map, filename = "party_vote_shares_district_map.eps", dpi = 600)
+
+
+```
+
+---
+
+## The Corresponding Code 
+
+.small[
+Stroppe, A.-K., & Jungmann, N. (2022). Stadt, Land, Wahl: Welchen Einfluss hat der Wohnort auf die
+Wahlentscheidung bei der Bundestagswahl 2021? easy_social_sciences, 67, 49-60.
+https://doi.org/10.15464/easy.2022.07
+]
+
+```{r btw-21_map_code, eval = F}
+
+# With Credits to Nils Jungmann
+
+## District Shapefile
+german_districts <- 
+  # load data
+  sf::read_sf("./data/VG250_KRS.shp") %>% 
+  # transform to correct crs
+  sf::st_transform(crs = 3035) %>% 
+  # subsetting land area of Germany
+  dplyr::filter(GF == 4) %>% 
+  # only keep necessary cols
+  dplyr::select(AGS,geometry) 
+
+## BL Shapefile
+german_states <-
+  sf::read_sf("./data/VG250_LAN.shp") %>%  
+  # transform to correct crs
+  sf::st_transform(crs = 3035) %>% 
+  # subsetting land area of Germany
+  dplyr::filter(GF == 4) %>% 
+  # only keep necessary cols
+  dplyr::select(AGS,geometry) 
+
+
+
+
+## German Federal Election Results 21 
+### Abfrage bundeswahlleiter, 28.02.22
+### Wahlergebnisse nach kreisfreien Städten und Landkeisen
+### https://www.bundeswahlleiter.de/bundestagswahlen/2021/ergebnisse/weitere-ergebnisse.html
+
+btw21_krs <- 
+  # load data
+  read.csv2("./data/btw2021kreis_zweitstimme.csv",
+                   header= T,
+                   fill = T,
+                   sep= ";",
+                   dec = ",",   
+                   colClasses=c("character","character",rep("numeric",44)),
+                   encoding = "UTF-8", 
+                   strip.white = TRUE) %>% 
+  # correct name first col 
+  dplyr::rename(., AGS = 1)  %>% 
+  # compute vote shares
+  dplyr::mutate(
+    AGS = stringr::str_pad(.$AGS, 5, pad = "0"),
+    turnout = ((Ungültige + Gültige)/Wahlberechtigte) *100,
+    union_shr = ((CDU + CSU) / Gültige) * 100,
+    afd_shr = (AfD / Gültige) * 100,
+    fdp_shr = (FDP / Gültige) * 100,
+    spd_shr = (SPD / Gültige) * 100,
+    linke_shr = (DIE.LINKE / Gültige) * 100,
+    green_shr = (GRÜNE / Gültige) * 100,
+    sonstige_shr = (rowSums(.[14:46])/Gültige) * 100) %>% 
+  # select necessary vars
+  dplyr::select(AGS,turnout, ends_with(c("_shr"))) %>% 
+  # remove mean over all districts
+  dplyr::filter(. , AGS != "00000") %>% 
+  # aggregate east and west berlin
+  dplyr::mutate(. , AGS = ifelse(AGS == "11100" | AGS == "11200", 
+                                 "11000", AGS)) %>%
+  dplyr::group_by(AGS) %>% 
+  dplyr::summarise(across(everything(), list(mean))) %>% 
+  dplyr::rename_with(~stringr::str_remove(., '_1'))
+
+
+## correct for district that was reformed in 2022
+btw21_krs <-
+  btw21_krs %>% 
+  dplyr::filter(., AGS == "16063") %>% 
+  dplyr::mutate( AGS = "16056") %>% 
+  dplyr::bind_rows(btw21_krs,.)
+
+## join election results to shapefile
+german_districts_btw <- 
+  german_districts %>% 
+  dplyr::left_join(. , btw21_krs, by = "AGS") 
+
+# Prepare for mapping: Dataset for each party plus color
+
+union <-
+  german_districts_btw %>% 
+  dplyr::select(union_shr, geometry) %>% 
+  dplyr::mutate(party = "Union",
+         color = "#030303") %>% 
+  dplyr::rename(party_shr = union_shr)
+
+spd <-
+  german_districts_btw %>% 
+  dplyr::select(spd_shr, geometry) %>% 
+  dplyr::mutate(party = "SPD",
+         color = "#FF0000") %>% 
+  dplyr::rename(party_shr = spd_shr)
+
+fdp <-
+  german_districts_btw %>% 
+  dplyr::select(fdp_shr, geometry) %>% 
+  dplyr::mutate(party = "FDP",
+         color = "#FFFF00") %>% 
+  dplyr::rename(party_shr = fdp_shr)
+
+gruene <-
+  german_districts_btw %>% 
+  dplyr::select(green_shr, geometry) %>% 
+  dplyr::mutate(party = "Gruene",
+         color = "#66CD00") %>% 
+  dplyr::rename(party_shr = green_shr)
+
+linke <-
+  german_districts_btw %>% 
+  dplyr::select(linke_shr, geometry) %>% 
+  dplyr::mutate(party = "Linke",
+         color = "#8A2BE2") %>% 
+  dplyr::rename(party_shr =linke_shr)
+
+afd <-
+  german_districts_btw %>% 
+  dplyr::select(afd_shr, geometry) %>% 
+  dplyr::mutate(party = "AfD",
+         color = "#1E90FF") %>% 
+  dplyr::rename(party_shr = afd_shr)
+
+# bind the datasets
+party_shares <- rbind(union, spd, fdp, gruene, linke, afd)
+
+# plot
+
+## nested dataset
+by_party <- party_shares %>% 
+  dplyr::group_by(party, color) %>% 
+  tidyr::nest()
+
+## add list of party colors for figures
+party_colors <- c("#030303", "#FF0000", "#FFFF00", "#66CD00",
+                  "#8A2BE2", "#1E90FF")
+
+# custom party color palettes
+parties <- c("Union", "SPD", "FDP", "GRÜNE", "LINKE", "AfD")
+
+party_palette_fcts <- purrr::map(party_colors, ~ colorRampPalette(c("#FFFFFF",.x)))
+names(party_palette_fcts) <- paste0(parties,"_palette")
+
+union_palette <- party_palette_fcts[[1]](10)
+spd_palette <- party_palette_fcts[[2]](10)
+fdp_palette <- party_palette_fcts[[3]](10)
+gruene_palette <- party_palette_fcts[[4]](10)
+linke_palette <- party_palette_fcts[[5]](10)
+afd_palette <- party_palette_fcts[[6]](10)
+
+# labels for vote shares
+vs_labels <- c("0 bis 5", "5 bis 10", "10 bis 15", "15 bis 20", "20 bis 25",
+               "25 bis 30", "30 bis 35", "35 bis 40", "40 bis 45", "45 bis 50")
+
+# maps
+# maps
+uni_btwshare_map <- tm_shape(subset(party_shares, party == "Union")) +
+  tm_polygons("party_shr",
+              title = "CDU/CSU",
+              palette = union_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+spd_btwshare_map <- tm_shape(subset(party_shares, party == "SPD")) +
+  tm_polygons("party_shr",
+              title = "SPD",
+              palette = spd_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T,
+            frame = F)
+
+fdp_btwshare_map <- tm_shape(subset(party_shares, party == "FDP")) +
+  tm_polygons("party_shr",
+              title = "FDP",
+              palette = fdp_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+gru_btwshare_map <- tm_shape(subset(party_shares, party == "Gruene")) +
+  tm_polygons("party_shr",
+              title = "Grüne",
+              palette = gruene_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T,
+            frame = F)
+
+lin_btwshare_map <- tm_shape(subset(party_shares, party == "Linke")) +
+  tm_polygons("party_shr",
+              title = "DIE LINKE",
+              palette = linke_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+afd_btwshare_map <- tm_shape(subset(party_shares, party == "AfD")) +
+  tm_polygons("party_shr",
+              title = "AfD",
+              palette = afd_palette,
+              labels = vs_labels,
+              style = "fixed",
+              n = 10,
+              breaks = c(0,5,10,15,20,25,30,35,40,45,50),
+              border.alpha = 0) +
+  tm_shape(german_states) +
+  tm_polygons("AGS",
+              alpha = 0,
+              border.col = "lightgrey",
+              legend.show = F) +
+  tm_layout(legend.title.size = .8,
+            legend.outside =  T, 
+            frame = F)
+
+# combine maps
+all_btwshare_map <- tmap_arrange(uni_btwshare_map, spd_btwshare_map, fdp_btwshare_map,
+                                 gru_btwshare_map, lin_btwshare_map, afd_btwshare_map,
+                                 ncol = 3)  
+all_btwshare_map
+# tmap_save(all_btwshare_map, filename = "party_vote_shares_district_map.eps", dpi = 600)
+
+```
+
+---
+
+```{r child = "./content/config/sessions_end.Rmd"}
+```

@@ -1,0 +1,245 @@
+---
+title: "Exercise 5_1: Advanced Maps"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+editor_options: 
+  chunk_output_type: console
+---
+
+### Exercises
+
+Let us go back to where we stopped developing our mapping techniques yesterday: our German districts map This is just a super short repetition of what was just presented.
+
+No worries, we're going to have some time to improve your maps in the second exercise.
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+Recreate a simple districts map as already created yesterday but use ggplot2 this time.
+
+They don't have to match perfectly but:
+
+- Use one of the attributes in the data
+- Choose a color palette.
+- Name your legend and change its position.
+- Your map should have a title.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+Here's the code to load the data:
+
+```{r}
+#| eval: false
+# load libraries
+library(dplyr)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("./data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("./data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+```
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+
+Save your map as a `.pdf`!
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+You need the function `ggsave` to fulfill this task.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 3
+
+Now we want to add another layer to see if the distance to public transport correlates with population size.
+
+- Create a new layer with the centroids of the German districts
+- Add this layer to the map and choose population as attribute
+- Change the color of the points
+
+**For an extra challenge which we haven't covered**: Can you change the size of dots according to population size?
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+
+You need to define `size = beds` as the aesthetics of the new layer for the extra challenge.
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+
+```{r}
+#| eval: false
+# load libraries
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("./data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("./data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# create map
+public_transport_map <-
+  ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = publictransport_meandist), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    name = "Distance to Public Transport in m"
+  ) + 
+  theme(legend.position = "left") +
+  labs(title = "Public Transport Map")   
+
+public_transport_map
+```
+
+```{r}
+#| echo: false
+# load libraries
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(sf)
+library(tmap)
+
+# load district shapefile
+german_districts <- sf::read_sf("../../data/VG250_KRS.shp")
+
+# load district attributes
+attributes_districts <- readr::read_csv2("../../data/attributes_districts.csv") 
+
+# join data
+german_districts_enhanced <- 
+  german_districts |>  
+  dplyr::left_join(attributes_districts, by = "AGS")
+
+# create map
+public_transport_map <-
+  ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = publictransport_meandist), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    name = "Distance to Public Transport in m"
+  ) + 
+  theme(legend.position = "left") +
+  labs(title = "Public Transport Map")   
+
+public_transport_map
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+
+```{r}
+#| eval: false
+# save map
+ggsave("./own_material/covid_map.pdf", covid_map, dpi = 300)
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 3
+
+```{r}
+
+# convert district data to point data
+german_districts_enhanced_points <-
+  german_districts_enhanced |> 
+  sf::st_centroid()
+
+
+# add population to previous map
+public_transport_map_population_1 <-
+  ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = publictransport_meandist), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    name = "Distance to Public Transport in m"
+  ) + 
+  geom_sf(
+    data = german_districts_enhanced_points,
+    aes(color = population)
+  ) +
+  scale_color_viridis_c(
+    option = "viridis",
+    direction = -1,
+    name = "Population Size"
+  ) +
+  theme(legend.position = "left") +
+  labs(title = "Public Transport Map")  
+
+public_transport_map_population_2 <-
+  ggplot() +
+  geom_sf(
+    data = german_districts_enhanced, 
+    aes(fill = publictransport_meandist), 
+    color = NA
+  ) + 
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1,
+    name = "Distance to Public Transport in m"
+  ) + 
+  geom_sf(
+    data = german_districts_enhanced_points,
+    aes(size = population)
+  ) +
+  scale_size(name = "Population Size") +
+  theme(legend.position = "left") +
+  labs(title = "Public Transport Map")  
+
+public_transport_map_population_1
+public_transport_map_population_2
+```
+
+:::

@@ -1,0 +1,584 @@
+---
+title: "Introduction to Geospatial Techniques for Social Scientists in R"
+subtitle: "Advanced Data Import & Processing"
+author: "Stefan Jünger & Anne-Kathrin Stroppe"
+date: April 24, 2024
+institute: GESIS Workshop
+presenter: Stefan
+editor_options: 
+  chunk_output_type: console
+---
+layout: true
+
+```{r child = "./content/config/sessions_setup.Rmd"}
+```
+
+---
+
+## Now
+
+```{r course-content-now, echo = FALSE}
+course_content |>
+  kableExtra::row_spec(6, background = "yellow")
+```
+
+---
+
+## More on the Geospatial Data Landscape
+
+Geospatial data tend to be quite big
+- pressure to distribute data efficiently
+
+Data dumps (on the internet) may not be helpful 
+- when resources are low 
+- time's a factor
+- the data have a large geographic extent
+
+Often a *Programming Application Interfaces* (API) is used
+
+---
+
+## What Is an API?
+
+An Application Programming Interface (API) serves as an entry point to data distributed over the internet to
+- get data
+- push data
+
+Standardized mechanisms
+- to query data
+- often just a simple text string to enter in your URL address bar
+- it gets complicated when login data are required
+
+---
+
+## Data Providers Offering Geospatial Data APIs
+
+- [OpenStreetMap](https://wiki.openstreetmap.org/wiki/API)
+- [Google](https://developers.google.com/maps/documentation/geolocation/overview)
+- [Bing](https://docs.microsoft.com/en-us/bingmaps/rest-services/locations/)
+- [Copernicus Climate Data Store](https://cds.climate.copernicus.eu/)
+- ...
+- [Cologne's Open Data Portal](https://www.offenedaten-koeln.de/dataset/taxonomy/term/44/field_tags/Geo-44)
+- Specialized `R` packages, such as the [`wiesbaden` package](https://cran.r-project.org/web/packages/wiesbaden/index.html) or the [`tidycensus` package](https://cran.r-project.org/web/packages/tidycensus/index.html)
+
+---
+
+## Example: Access to Public Transport
+
+Say, we're interested in the accessibility of public transport in Cologne
+- bus, tram, etc.
+- all platforms and vehicles should be wheel-chair accessible
+
+**We can gather this information using OpenStreetMap!**
+
+---
+
+## Accessing OSM Data: The Overpass API
+
+> The Overpass API (formerly known as OSM Server Side Scripting, or OSM3S before 2011) is a read-only API that serves up custom selected parts of the OSM map data. It acts as a database over the web: the client sends a query to the API and returns the data set that corresponds to the query.
+
+.tinyisher[Source: https://wiki.openstreetmap.org/wiki/Overpass_API]
+
+---
+
+## Starting With a Geographic Area to Query
+
+Many geospatial API requests start with a bounding box or another geographical extent to define which area should be accessed.
+
+.pull-left[
+```{r cologne-polygon}
+cologne_pt_stops <-
+  osmdata::getbb(
+    "Köln"
+  )
+```
+]
+
+--
+
+.pull-right[
+```{r cologne-polygon-plot, echo = FALSE} 
+cologne_pt_stops |> 
+  t() |> 
+  dplyr::as_tibble() |> 
+  sf::st_as_sf(coords = c("x", "y")) |> 
+  sf::st_bbox() |> 
+  sf::st_as_sfc() |> 
+  tm_shape() +
+  tm_polygons()
+```
+]
+
+---
+
+## Defining Some Technical Details
+
+The Overpass API also requires a timeout parameter that repeats the request for a while if anything fails.
+
+```{r cologne-opq}
+cologne_pt_stops <-
+  cologne_pt_stops |> 
+  osmdata::opq(timeout = 25*100)
+
+cologne_pt_stops
+```
+
+---
+
+## Turning to the Content
+
+The content we aim to request is defined with key/value pairs. It's best to learn them by looking them up in the [official documentation](https://wiki.openstreetmap.org/wiki/Map_features).
+
+```{r cologne-features}
+cologne_pt_stops <-
+  cologne_pt_stops |>    
+  osmdata::add_osm_feature(key = "public_transport", value = "stop_position")
+
+cologne_pt_stops
+```
+
+---
+
+## Conduct Actual Request/Download
+
+Data is finally downloaded in the `osmdata` package, e.g., using the `osmdata::osmdata_sf()` function.
+
+```{r osmdata-download}
+cologne_pt_stops <-
+  cologne_pt_stops |>   
+  osmdata::osmdata_sf()
+
+cologne_pt_stops
+```
+
+---
+
+## Filter and Transform
+
+The data comprises a list that can be accessed as any list in `R`. Here, we extract the points and wrangle them spatially.
+
+.pull-left[
+```{r osmdata-filter-transform}
+cologne_pt_stops <-
+  cologne_pt_stops$osm_points |> 
+  tibble::as_tibble() |> 
+  sf::st_as_sf() |> 
+  sf::st_transform(3035) |> 
+  dplyr::filter(wheelchair == "yes")
+
+cologne_pt_stops
+```
+]
+
+---
+
+## The Data Indeed Are Mappable
+
+.pull-left[
+```{r cologne-pt-stops-map, eval = FALSE}
+tm_shape(cologne_pt_stops) +
+  tm_dots()
+```
+]
+
+--
+
+.pull-right[
+```{r cologne-pt-stops-map, ref.label = "cologne-pt-stops-map", echo = FALSE}
+```
+]
+
+---
+
+## Fiddling With the Data: Creating a Quick 'Heatmap'
+
+OpenStreetMap points data are nice for analyzing urban infrastructure. Let's draw a quick 'heatmap' using kernel densities.
+
+.pull-left[
+```{r cologne-pt-stops-densities}
+cologne_pt_stops_densities <- 
+  cologne_pt_stops |> 
+  sf::as_Spatial() |>
+  as("ppp") |> 
+  spatstat.explore::density.ppp(sigma = 500) |> 
+  terra::rast()
+
+terra::crs(cologne_pt_stops_densities) <- "epsg:3035"
+
+```
+]
+
+--
+
+.pull-right[
+```{r cologne-pt-stops-densities-plot, echo = FALSE}
+tm_shape(cologne_pt_stops_densities) +
+  tm_raster(midpoint = NA, palette = "-viridis")
+```
+]
+
+---
+
+class: middle
+## Exercise 2_1_1: Working with OSM Data
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/2_1_1_Working_with_OSM_Data.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/solutions/2_1_1_Working_with_OSM_Data.html)
+
+---
+
+## Accessing Unpackaged (Vector) Data
+
+Not all data come as pretty as OpenStreetMap data in, e.g., the `osmdata` package.
+
+Don't worry. There are methods to import data from a source that
+- only provide a URL
+- not yet prepared for analysis
+
+
+---
+
+## Example: GeoJSON Files
+
+JSON files are pretty popular
+- standardized and well-structured
+- similar to XML-files, but human readability is a bit better
+- also easy to parse for editors and browser
+
+There's also a JSON flavor for geospatial data...
+
+---
+
+## GeoJSON Snippet
+
+```
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 12,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              6.957362270020273,
+              50.94308762750329
+            ]   
+  ...
+```
+
+.tinyisher[Source: https://www.offenedaten-koeln.de/]
+
+---
+
+## An Application From Cologne’s Open Data Portal
+
+```{r sags-uns-cologne}
+park_and_ride <-
+  glue::glue(
+    "https://geoportal.stadt-koeln.de/arcgis/rest/services/verkehr/",
+    "verkehrskalender/MapServer/8/query?where=objectid+is+not+null&text=&",
+    "objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&",
+    "spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&",
+    "relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&",
+    "maxAllowableOffset=&geometryPrecision=&outSR=4326&havingClause=&",
+    "returnIdsOnly=false&returnCountOnly=false&orderByFields=&",
+    "groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&",
+    "gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&",
+    "resultRecordCount=&returnExtentOnly=false&datumTransformation=&",
+    "parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=",
+    "esriDefault&f=pjson"
+  ) |> 
+  sf::st_read(as_tibble = TRUE)
+```
+
+.tinyisher[Source: https://www.offenedaten-koeln.de/dataset/park-and-ride-anlagen-koeln]
+
+---
+
+## Park & Ride Parking Spaces
+
+With just two 'simple' commands, we can retrieve geospatial data about Cologne's Park & Ride parking spaces in `R`. Not too bad, right?
+
+.pull-left[
+```{r trash-cologne-plot, eval = FALSE}
+tm_shape(park_and_ride) +
+  tm_dots()
+```
+]
+
+--
+
+.pull-right[
+```{r trash-cologne-plot-exec, ref.label = "trash-cologne-plot", echo = FALSE}
+```
+]
+
+---
+
+## Raster Data Access
+
+It is not only vector data that can be processed through these mechanisms.
+
+The idea is the same for raster data
+- accessing the information through URLs
+- just the downloaded data formats differ
+
+---
+
+## Example: Downloading German Weather Data
+
+The German Weather Service provides excellent weather data in its Climate Data Center (CDC): https://opendata.dwd.de/climate_environment/CDC/
+
+Let's download some summer temperature data using a custom function.
+
+```{r download-dwd-data}
+download_dwd_data <- function(url, path) {
+  
+  download.file(url, dest = paste0(path, "/", "lyr.1.asc.gz"))
+  
+  R.utils::gunzip(
+    paste0(path, "/", "lyr.1.asc.gz"), 
+    overwrite = TRUE,
+    remove = TRUE
+  )
+  
+  raster_file <-
+    terra::rast(paste0(path, "/", "lyr.1.asc"))
+  
+  unlink(paste0(path, "/", "lyr.1.asc.gz"))
+  
+  raster_file
+}
+```
+
+---
+
+## Voilà
+
+.pull-left[
+```{r dwd-map, eval = FALSE}
+paste0(
+  "https://opendata.dwd.de/climate_environment/CDC/grids_germany/seasonal/",
+  "air_temperature_max/14_JJA/grids_germany_seasonal_air_temp_max_202314.",
+  "asc.gz") |> 
+  download_dwd_data(path = "./data/") |> 
+  terra::plot()
+```
+]
+
+--
+
+.pull-right[
+```{r dwd-map-exec, ref.label = "dwd-map", echo = FALSE}
+```
+]
+
+```{r remove-data-again, echo = FALSE}
+unlink("./data/lyr.1.asc")
+```
+
+
+---
+
+## OSM Data Can Be Gathered As Raster Data, Too
+
+The `tmaptools` package is handy for downloading OpenStreetMap data (tiles).
+
+```{r cologne-raster}
+cologne_raster <-
+  tmaptools::read_osm(park_and_ride) |> 
+  terra::rast()
+
+cologne_raster
+```
+
+---
+
+## Mapped OSM Raster Data
+
+The resulting data can be packed in a `tmap` workflow.
+
+.pull-left[
+```{r cologne-raster-map, eval = FALSE}
+tm_shape(cologne_raster) +
+  tm_rgb()
+```
+]
+
+--
+
+.pull-right[
+```{r cologne-raster-map-exec, ref.label = "cologne-raster-map", echo = FALSE}
+```
+]
+
+---
+
+## Use It As a Background Map
+
+These data are images, so they are perfect for use as background maps when mapping other geospatial attributes, such as our park and ride data.
+
+.pull-left[
+```{r cologne-raster-map-bg, eval = FALSE}
+tm_shape(cologne_raster) +
+  tm_rgb() +
+  tm_shape(park_and_ride) +
+  tm_dots(size = .3)
+```
+]
+
+--
+
+.pull-right[
+```{r cologne-raster-map-bg-exec, ref.label = "cologne-raster-map-bg", echo = FALSE}
+```
+]
+
+---
+
+## Playing With Different Map Types
+
+A list of available type names can be seen with the function call `OpenStreetMap::getMapInfo()`.
+
+--
+
+.pull-left[
+```{r esri-topo, out.width = "70%"}
+tmaptools::read_osm(
+  park_and_ride, 
+  type = "bing"
+) |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(park_and_ride) +
+  tm_dots(size = .3, col = "red")
+```
+]
+
+--
+
+.pull-right[
+```{r stamen-watercolor, out.width = "70%"}
+tmaptools::read_osm(
+  park_and_ride, 
+  type = "esri-topo"
+) |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(park_and_ride) +
+  tm_dots(size = .3)
+```
+]
+
+---
+
+## Shameless Advertising: The `z11` Package
+
+There are times when no APIs are available to download geospatial data.
+
+The German Census 2011 is a prime example
+- only a data dump of Gigabytes of data exists for hundreds of attributes
+- when you often work with these data, it's a pain
+
+**Thus, I created my own (pseudo-)API for these data hosted over Github.**
+
+---
+
+## Accessing Data
+
+Details on using the package can be found [here](https://stefanjuenger.github.io/z11/articles/using-z11.html), but it's straightforward. For example, if you want to download data on immigrant rates on a 1 km² grid, you can use the following function.
+
+```{r census-immigrants}
+immigrants_germany <-
+  z11::z11_get_1km_attribute(Auslaender_A)
+
+immigrants_germany[immigrants_germany <= -1] <- NA
+
+immigrants_germany
+```
+
+---
+
+## It’s a Raster
+
+As it is a raster file, you can plot it easily.
+
+--
+
+.pull-left[
+```{r census-immigrants-map, eval = FALSE}
+tm_shape(immigrants_germany) +
+  tm_raster(palette = "viridis")
+```
+]
+
+--
+
+.pull-right[
+```{r census-immigrants-map-execution, ref.label = "census-immigrants-map", echo = FALSE}
+```
+]
+
+---
+
+class: middle 
+## Exercise 2_1_2: Wrangling the German Census
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/2_1_2_Wrangling_the_German_Census.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/solutions/2_1_2_Wrangling_the_German_Census.html)
+
+
+---
+
+class: middle
+
+## Add-on Slides
+
+---
+
+## OGC Web Services
+
+OSM and others provide a standardized interface to their data.
+
+The Open Geospatial Consortium developed a more broadly used interface design for more diverse data sources
+- often used by public authorities all over the world
+- support of well-supported data formats
+- good documentation
+
+---
+
+## Displaying vs. Downloading
+
+These web services can broadly be divided into services to
+- display data
+- download data
+
+Let's briefly focus on download services!
+
+---
+
+## Download Services
+
+Web Feature Service (WFS)
+- vector data
+
+**Web Coverage Service (WCS)**
+- raster data
+
+Unfortunately, as of today, no ready-to-play packages are providing full access to OWS services in `R`
+- The [`ows4R` package](https://cran.r-project.org/web/packages/ows4R/index.html) lets you only use WFS services
+- But you could establish an interface with `Python` and use its `OWSLib` to access WCS data (see add-on slides.
+
+
+<!-- STOP WITH SLIDES HERE -->
+
+---
+
+
+```{r child = "./content/config/sessions_end.Rmd"}
+```
