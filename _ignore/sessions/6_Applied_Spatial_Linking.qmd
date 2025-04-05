@@ -1,0 +1,943 @@
+---
+title: "Applied Spatial Linking"
+author: "Stefan Jünger & Dennis Abel"
+date: April 10, 2025
+execute:
+  echo: true
+format:
+  revealjs:
+    embed-resources: true
+    theme: [simple, tweaks.css]
+    smaller: true
+    scrollable: true
+    slide-number: "c/t"
+    navigation-mode: vertical
+    logo: ../img/GESIS-Logo_2024.svg.png
+    # fig-dpi: 300
+    fig-align: "center"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: false
+library(tmap)
+```
+
+
+## Now
+
+```{r}
+#| echo: false
+source("course_content.R") 
+
+course_content |> 
+  kableExtra::row_spec(10, background = "yellow")
+```
+
+## What are georeferenced data?
+
+Data with a direct spatial reference $\rightarrow$ **geo-coordinates**
+
+- Information about geometries
+- Optional: Content in relation to the geometries
+
+![](../img/fig_geometries.png){.r-stretch fig-align="center"}
+
+<small>Sources: OpenStreetMap / GEOFABRIK (2018), City of Cologne (2014), and the Statistical Offices of the Federation and the Länder (2016) / Jünger, 2019</small>
+
+
+---
+
+
+## Georeferenced survey data
+
+Survey data enriched with geo-coordinates (or other direct spatial references)
+
+![](../img/geo_surveys.png){.r-stretch fig-align="center"}
+
+**With georeferenced survey data, we can analyze interactions between individual behaviors and attitudes and the environment.**
+
+## An example workflow
+
+::: {.column width="50%"}
+From the addresses to analyses with georeferenced survey data, several steps and challenges along the way. We will talk about:
+
+- Data Protection & Data Access
+- Geocoding 
+- Spatial Data Linking
+- Applied Examples
+:::
+
+::: {.column width="50%"}
+![](../img/varreport.png){fig-align="center" width="50%"}
+:::
+::::
+
+
+## Data protection
+
+That‘s one of the biggest issues
+
+- Explicit spatial references increase the risk of re-identifying anonymized survey respondents
+- Can occur during the processing of data but also during the analysis
+
+
+**Affects all phases of research and data management!**
+
+
+## Data availability
+
+::: {.column width="50%"}
+Geospatial Data
+
+- Often de-centralized distributed 
+- Fragmented data landscape, at least in Germany
+
+Georeferenced Survey Data
+
+- Primarily, survey data
+- Depends on documentation
+- Access difficult due to data protection restrictions
+:::
+
+::: {.column width="50%"}
+![](../img/data_availability.png){fig-align="center" width="50%"}
+
+<small>
+https://www.eea.europa.eu/data-and-maps
+https://datasearch.gesis.org/
+https://datasetsearch.research.google.com/
+</small>
+:::
+::::
+
+## Distribution & re-identification risk
+
+Even without (in)direct spatial references, data may still be sensitive
+
+- Geospatial attributes add new information to existing data
+- Maybe part of general data privacy checks, but we may not distribute these data as is
+
+::: {.column width="50%"}
+Safe Rooms / Secure Data Centers
+
+- Control access
+- Checks output
+:::
+
+::: {.column width="50%"}
+![](../img/safe_room.png){fig-align="center" width="50%"}
+<small>https://www.gesis.org/en/services/processing-and-analyzing-data/guest-research-stays/secure-data-center-sdc</small>
+:::
+::::
+
+## Legal Regulations in Data Processing
+
+::: {.column width="50%"}
+Storing personal information such as addresses in the same place as actual survey attributes is not allowed in Germany
+
+- Projects keep them in separate locations
+- Can only be matched with a correspondence table
+- Necessary to conduct data linking
+:::
+
+::: {.column width="50%"}
+![](../img/fig_linking_workflow_simple.png){fig-align="center" width="50%"}
+
+<small>Jünger, 2019</small>
+:::
+::::
+
+## Geocoding
+
+Geocoding is the conversion of indirect spatial references (e.g., addresses) into direct spatial references (e.g., coordinates)
+
+However, conducting this procedure is a bit tricky (not only in R). Many services are either
+
+- expensive (at least they cost money or have other restrictions)
+- probably not data protection friendly (Hey Google)
+- or both
+
+## OSM Is Your Friend
+
+We can use the Nominatim API from OSM for geocoding of at least a couple of addresses
+
+```{r}
+library(tibble)
+library(tidygeocoder)
+
+leibniz_addresses <-
+  tibble::tribble(
+    ~street, ~housenumber, ~zip_code, ~place, ~institute,
+    "B 2", "1", "68159", "Mannheim", "GESIS",
+    "Unter Sachsenhausen", "6-8",  "50667", "Köln", "GESIS",
+    "Kellnerweg", "4", "37077", "Göttingen", "DPZ",
+    "Reichsstr.", "4-6", "04109",  "Leipzig", "GWZO",
+    "Schöneckstraße", "6", "79104", "Freiburg", "KIS",
+    "Albert-Einstein-Straße", "29a", "18059", "Rostock", "LIKAT",
+    "L7", "1", "68161", "Mannheim", "ZEW",
+    "Müggelseedamm", "310", "12587", "Berlin", "IGB",
+    "Campus D2", "2", "66123", "Saarbrücken", "INM",
+    "Eberswalder Straße", "84", "15374", "Müncheberg (Mark)", "ZALF"
+  ) |> 
+  dplyr::mutate(whole_address = paste(street, housenumber, zip_code, place))
+```
+
+## Run the Geocoding
+
+```{r}
+leibniz_addresses <-
+  tidygeocoder::geocode(
+    leibniz_addresses,
+    address = whole_address
+  )
+
+leibniz_addresses
+```
+
+## Convert To `sf` Object And Plot
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+leibniz_addresses_sf <-
+  leibniz_addresses |> 
+  dplyr::filter(!is.na(lat)) |> 
+  sf::st_as_sf(coords = c("long", "lat"), crs = 4326)
+
+tmaptools::read_osm(
+  leibniz_addresses_sf, 
+  type = "esri-topo"
+) |> 
+  terra::rast() |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(leibniz_addresses_sf) +
+  tm_dots(size = 2, col = "red")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+leibniz_addresses_sf <-
+  leibniz_addresses |> 
+  dplyr::filter(!is.na(lat)) |> 
+  sf::st_as_sf(coords = c("long", "lat"), crs = 4326)
+
+tmaptools::read_osm(
+  leibniz_addresses_sf, 
+  type = "esri-topo"
+) |> 
+  terra::rast() |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(leibniz_addresses_sf) +
+  tm_dots(size = 2, col = "red")
+```
+:::
+::::
+
+## Our Approach
+
+We rely on a service offered by the Federal Agency of Cartography and Geodesy (BKG):
+
+- Online interface and API for online geocoding
+- Offline geocoding possible based on raw data
+- But: Data and service are restricted
+
+## `bkggeocoder`
+
+::: {.column width="50%"}
+`R` package `bkggeocoder` developed at GESIS for (offline) geocoding by Stefan and Jonas Lieth:
+
+- Access via [Github](https://github.com/StefanJuenger/bkggeocoder)
+- Introduction in the [Meet the Experts Talk](https://www.youtube.com/watch?v=ZnA21LyKK88&feature=youtu.be) by Stefan
+:::
+
+::: {.column width="50%"}
+![](../img/bkggeocoder.png){fig-align="center" width="50%"}
+:::
+::::
+
+## Spatial Linking
+
+::: {.column width="50%"}
+The geocoding tool automatically retrieves point coordinates, administrative unit keys, and grid cell IDs.
+Spatial joins based on coordinates for other units:
+
+- constituencies
+- administrative units across time (e.g., harmonized territorial status)
+:::
+
+::: {.column width="50%"}
+![](../img/fig_3d_.png){fig-align="center" width="50%"}
+
+<small>Sources:  OpenStreetMap / GEOFABRIK (2018), City of Cologne (2014), Leibniz Institute of Ecological Urban and Regional Development (2018), Statistical Offices of the Federation and the Länder (2016), and German Environmental Agency / EIONET Central Data Repository (2016) / Jünger, 2019</small>
+:::
+::::
+
+
+## Data Linking
+
+Linking via common identifiers is most commonly used but comes with its own challenges (e.g., territorial status and land reforms? Comparable units? Heterogeneity within units?).
+
+![](../img/data_linking.png){.r-stretch fig-align="center"}
+
+## Spatial Linking Methods (Examples) I
+
+:::: columns
+::: {.column width="50%"}
+1:1 <small>(`sf::st_join()`)</small>
+
+![](../img/fig_linking_by_location_noise.png){fig-align="center" width="50%"}
+:::
+
+::: {.column width="50%"}
+Distances <small>(`sf::st_distance()`)</small>
+
+![](../img/fig_linking_distance_noise_appI.png){fig-align="center" width="50%"}
+:::
+::::
+
+<small>Sources: German Environmental Agency / EIONET Central Data Repository (2016) and OpenStreetMap / GEOFABRIK (2018) / Jünger, 2019</small>
+
+## Spatial Linking Methods (Examples) II
+
+:::: columns
+::: {.column width="50%"}
+Filter methods <small>(`sf::st_filter()` or `terra::vect(..., filter = ...)`)</small>
+
+![](../img/fig_linking_focal_immigrants.png){fig-align="center" width="50%"}
+:::
+
+::: {.column width="50%"}
+Buffer zones <small>(`sf::st_buffer()`)</small>
+
+![](../img/fig_linking_buffer_sealing.png){fig-align="center" width="50%"}
+:::
+::::
+
+<small>Sources: Leibniz Institute of Ecological Urban and Regional Development (2018) and Statistical Offices of the Federation and the Länder (2016) / Jünger, 2019</small>
+
+## Cheatsheet: Spatial Operations
+
+An overview of spatial operations using the `sf` package can be accessed [here](https://ugoproto.github.io/ugo_r_doc/pdf/sf.pdf).
+
+![](../img/cheatsheet.png){.r-stretch fig-align="center"}
+
+## Data Aggregation
+
+If you want to aggregate attributes and geometries of a shapefile, you can rely on `st_combine(x)` , `st_union(x,y)` and `st_intersection(x, y)` to combine shapefiles, resolve borders and return the intersection of two shapefiles. 
+
+For raster data, you can aggregate with the function `terra::aggregate()`(if you have matching raster files) in combination with `terra::resample()` (if your raster files don't match).
+
+To deal with spatial misalignment:
+
+- [`smile` package](https://lcgodoy.me/smile/)
+- [`areal` package](https://chris-prener.github.io/areal/)
+
+
+## Data Aggregation
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+german_districts <-
+  sf::read_sf("./data/VG250_KRS.shp") |> 
+  dplyr::mutate(
+    federal_state =
+      as.numeric(stringr::str_sub(AGS,1,2))
+  ) 
+
+german_states <-
+  german_districts |>  
+  dplyr::group_by(federal_state) |>  
+  dplyr::summarize(
+    geometry = sf::st_union(geometry)
+  )
+
+tm_shape(german_states) + 
+  tm_borders()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+german_districts <-
+  sf::read_sf("../../data/VG250_KRS.shp") |> 
+  dplyr::mutate(
+    federal_state =
+      as.numeric(stringr::str_sub(AGS,1,2))
+  ) 
+
+german_states <-
+  german_districts |>  
+  dplyr::group_by(federal_state) |>  
+  dplyr::summarize(
+    geometry = sf::st_union(geometry)
+  )
+
+tm_shape(german_states) + 
+  tm_borders()
+```
+:::
+::::
+
+
+## Fake Research Question
+
+::: {.column width="50%"}
+Say we're interested in the impact of neighbourhood characteristics (e.g. mobility infrastructure) on individual-level attitudes towards energy transition.
+
+We plan to conduct a survey representative for the population of Germany.
+:::
+
+::: {.column width="50%"}
+![](../img/snoop.jpg){fig-align="center" width="50%"}
+
+<small>https://imgflip.com/i/9ptcuu</small>
+:::
+::::
+
+
+## Synthetic georeferenced survey data
+
+:::: columns
+::: {.column width="50%"}
+We have added a synthetic dataset of 2,000 geocoordinates in the `./data/` folder (aggregated to 1 sq km centroids). Originally, it is based on the sample of the georeferenced GESIS Panel.
+
+
+```{r}
+#| eval: false
+#| fig.asp: 1
+synthetic_survey_coordinates <-
+  readRDS("./data/synthetic_survey_coordinates.rds")
+
+tmaptools::read_osm(
+  synthetic_survey_coordinates, 
+  type = "esri-topo"
+) |> 
+  terra::rast() |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(synthetic_survey_coordinates) +
+  tm_dots(size = 2, col = "red")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+synthetic_survey_coordinates <-
+  readRDS("../../data/synthetic_survey_coordinates.rds")
+
+tmaptools::read_osm(
+  synthetic_survey_coordinates, 
+  type = "esri-topo"
+) |> 
+  terra::rast() |> 
+  tm_shape() +
+  tm_rgb() +
+  tm_shape(synthetic_survey_coordinates) +
+  tm_dots(col = "red")
+```
+:::
+::::
+
+## Correspondence table
+
+As in any survey that deals with addresses, we need a correspondence table of the distinct identifiers.
+
+```{r}
+correspondence_table <-
+  dplyr::bind_cols(
+    id_survey = 
+      stringi::stri_rand_strings(10000, 10) |>  
+      sample(2000, replace = FALSE),
+    id = synthetic_survey_coordinates$id
+  )
+
+correspondence_table
+```
+
+## Conduct the survey
+
+We ask respondents for some standard sociodemographics. But we also include an item from the [GLES Panel](https://doi.org/10.4232/1.14114) on energy transformation: "From 2030, no more new cars with petrol or diesel engines are to be registered in Germany. How much do you agree?" (`entrans`). Since we cannot share the actual data, we created fake data using the [`faux` package](https://cran.r-project.org/web/packages/faux/index.html).
+
+```{r}
+#| include: false
+charging_points <-
+  readr::read_delim("../../data/charging_points_ger.csv", delim = ";") |> 
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) |> 
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  sf::st_transform(3035)
+
+# Find the nearest charging station 
+nearest_charger <- 
+  sf::st_nearest_feature(
+    synthetic_survey_coordinates, 
+    charging_points
+  )
+
+secret_data <- 
+  synthetic_survey_coordinates |> 
+  dplyr::mutate(
+    distances =
+      sf::st_distance(
+        synthetic_survey_coordinates, 
+        charging_points[nearest_charger,], 
+        by_element = TRUE
+      ) |>
+      as.vector()
+  )
+
+secret_variable_we_are_hiding_from_you <-
+  faux::rnorm_pre(
+    secret_data$distances, 
+    mu = 50, 
+    sd = 10, 
+    r = -0.5
+  )
+```
+
+```{r}
+fake_survey_data <- 
+  dplyr::bind_cols(
+    id = correspondence_table$id,
+    age = sample(18:100, 2000, replace = TRUE),
+    gender = 
+      sample(1:3, 2000, replace = TRUE, prob = c(.45, .45, .1)) |> 
+      as.factor(),
+    education =
+      sample(1:4, 2000, replace = TRUE) |>  
+      as.factor(),
+    income =
+      sample(100:10000, 2000, replace = TRUE),
+    entrans = secret_variable_we_are_hiding_from_you
+  )
+```
+
+## What could explain our ?
+
+*Access to charging infrastructure*
+> Better access to charging infrastructure,  higher support for energy transformation.
+
+*Rural-urban divide*
+> Higher population density, higher support for energy transformation.
+
+## District-level data
+
+We already have most of our information on the district level from yesterday.
+
+```{r}
+#| eval: false
+district_attributes <-
+  # load district shapefile
+  sf::read_sf("./data/VG250_KRS.shp") |> 
+  # add attribute table
+  dplyr::left_join(
+    readr::read_delim("./data/attributes_districts.csv", delim = ";"), 
+    by = "AGS"
+  ) 
+```
+
+
+```{r load-data-hidden, echo = F, warning = F, message = F}
+#| echo: false
+district_attributes <-
+  # load district shapefile
+  sf::read_sf("../../data/VG250_KRS.shp") |> 
+  # add attribute table
+  dplyr::left_join(
+    readr::read_delim("../../data/attributes_districts.csv", delim = ";"), 
+    by = "AGS"
+  ) 
+```
+
+## District Operationalization
+
+*Access to charging infrastructure*
+> Charging stations per 1000 inhabitants in a district
+
+*Rural-urban divide*
+> Population Density in a district
+
+## Access to charging infrastructure
+
+Luckily, we've done something similar already yesterdays!
+
+```{r}
+#| eval: false
+charger_data <- 
+  # Load charging station points 
+  readr::read_delim("./data/charging_points_ger.csv", delim = ";") |> 
+  # Filter out rows with missing longitude or latitude
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) |> 
+  # Convert data frame to sf object
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  # Reproject the spatial data to the desired CRS (Coordinate Reference System)
+  sf::st_transform(crs = sf::st_crs(district_attributes))
+
+aggregated_charger_data <-
+  charger_data |> 
+  # spatial join district ids
+  sf::st_join(district_attributes |>  dplyr::select(AGS)) |>  
+  # Group by district ID
+  dplyr::group_by(AGS) |> 
+  # Summarize the number of chargers in each district
+  dplyr::summarise(charger_count = dplyr::n()) |> 
+  # Drop geometry column
+  sf::st_drop_geometry()
+
+district_attributes <-
+  # Left join with sampling area attributes
+  dplyr::left_join(
+    district_attributes, aggregated_charger_data, by = "AGS"
+  ) |> 
+  # Calculate charger density per 1000 population
+  dplyr::mutate(charger_dens = (charger_count * 1000) / population)
+```
+
+```{r}
+#| echo: false
+charger_data <- 
+  # Load charging station points 
+  readr::read_delim("../../data/charging_points_ger.csv", delim = ";") |> 
+  # Filter out rows with missing longitude or latitude
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) |> 
+  # Convert data frame to sf object
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  # Reproject the spatial data to the desired CRS (Coordinate Reference System)
+  sf::st_transform(crs = sf::st_crs(district_attributes))
+
+aggregated_charger_data <-
+  charger_data |> 
+  # spatial join district ids
+  sf::st_join(district_attributes |>  dplyr::select(AGS)) |>  
+  # Group by district ID
+  dplyr::group_by(AGS) |> 
+  # Summarize the number of chargers in each district
+  dplyr::summarise(charger_count = dplyr::n()) |> 
+  # Drop geometry column
+  sf::st_drop_geometry()
+
+district_attributes <-
+  # Left join with sampling area attributes
+  dplyr::left_join(
+    district_attributes, aggregated_charger_data, by = "AGS"
+  ) |> 
+  # Calculate charger density per 1000 population
+  dplyr::mutate(charger_dens = (charger_count * 1000) / population)
+```
+
+## Rural-urban divide
+
+Our attribute table contains the number of inhabitants per district but not the population density. Therefore, we need to calculate the area of the district.
+
+```{r}
+# calculate area of districts
+# areas will always be calculated
+# in units according to the CRS 
+sf::st_area(district_attributes) |> 
+  head(4)
+
+district_attributes |> 
+  sf::st_transform(4326) |>  
+  sf::st_area() |> 
+  head(4)
+```
+
+## Population Density
+
+All left to do is a simple mutation:
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# calculating population density
+district_attributes <-
+  district_attributes |>  
+  # calculate area of districts (areas will always
+  # be calculated in units according to the CRS )
+  dplyr::mutate(
+    area = sf::st_area(district_attributes)
+  ) |> 
+  # change unit to square kilometers
+  dplyr::mutate(
+    area_km2 = units::set_units(area, km^2)
+  ) |> 
+  # recode variable as numeric
+  dplyr::mutate(
+    area_km2 = as.numeric(area_km2)
+  ) |> 
+  # calculate population density
+  dplyr::mutate(
+    pop_dens = population/  area_km2
+  )
+
+plot(district_attributes["pop_dens"])
+
+tm_shape(district_attributes) +
+  tm_fill(
+    "pop_dens", 
+    fill.scale = tm_scale(breaks = c(0,100,200,400,800,1600,3200, Inf))
+  ) +
+  tm_layout(legend.outside = TRUE)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# calculating population density
+district_attributes <-
+  district_attributes |>  
+  # calculate area of districts (areas will always
+  # be calculated in units according to the CRS )
+  dplyr::mutate(
+    area = sf::st_area(district_attributes)
+  ) |> 
+  # change unit to square kilometers
+  dplyr::mutate(
+    area_km2 = units::set_units(area, km^2)
+  ) |> 
+  # recode variable as numeric
+  dplyr::mutate(
+    area_km2 = as.numeric(area_km2)
+  ) |> 
+  # calculate population density
+  dplyr::mutate(
+    pop_dens = population/  area_km2
+  )
+
+plot(district_attributes["pop_dens"])
+
+tm_shape(district_attributes) +
+  tm_fill(
+    "pop_dens", 
+    fill.scale = tm_scale(breaks = c(0,100,200,400,800,1600,3200, Inf))
+  ) +
+  tm_layout(legend.outside = TRUE)
+```
+:::
+::::
+
+## Respondents in Districts
+
+We have population density on the district level.  Since our analysis focuses on the individual level, we can spatially join the information to our fake respondents' coordinates.
+
+```{r}
+district_linked_df <-
+  district_attributes |> 
+  sf::st_transform(sf::st_crs(synthetic_survey_coordinates)) |> 
+  # keeping just the variables we want
+  dplyr::select(charger_dens, publictransport_meandist, pop_dens) |>  
+  # since we want to join district to
+  # respondent defining coordinates first
+  sf::st_join(
+    x = synthetic_survey_coordinates,
+    # district data second
+    y = _,
+    # some points may lie on the border
+    # choosing intersects 
+    join = sf::st_intersects
+  ) |>  
+  # drop our coordinates for data protection
+  sf::st_drop_geometry()
+
+```
+
+## Respondents in Districts
+
+```{r}
+head(district_linked_df, 5)
+```
+
+## Too boring? Let's scale it down!
+
+We have our nice fake coordinates, and we know that we also have variations in some districts (e.g., Cologne) concerning e-car mobility. So, let's try to operationalize the variables on a smaller level of aggregation.
+
+*Access to charging infrastructure*
+> Charging stations in a 5000m buffer
+
+*Rural-urban divide*
+> Population in a 5000m buffer 
+
+## Charging stations in 5000m Buffer
+
+The procedure for calculating the number of chargers in a 5km buffer is very similar to calculating the chargers in a district.
+
+```{r}
+# Create 5000m buffers around the fake coordinates
+buffers <- 
+  synthetic_survey_coordinates |> 
+  sf::st_buffer(dist = 5000)
+
+# Perform intersection between buffers and points_sf
+inter <- 
+  sf::st_intersects(buffers, charger_data |> sf::st_transform(3035))
+
+# Count points within each buffer
+coordinate_linked_df <- 
+  synthetic_survey_coordinates |> 
+  dplyr::mutate(num_charger = lengths(inter))
+```
+
+## Distance Calculation II
+
+`sf::st_distance()` will calculate between **all** respondents and **all** train stations resulting in a matrix with 2,710,000 objects (1,000 respondent * 2,710 stations). 
+We can make our lives easier by first identifying the nearest station and then calculating the distance.
+
+```{r}
+# Find the nearest charging station 
+nearest_charger <- 
+  sf::st_nearest_feature(
+    synthetic_survey_coordinates, 
+    charger_data |> 
+      sf::st_transform(3035)
+  )
+
+# Calculate the distance between each point in
+# fake_coordinates & its nearest charging station
+coordinate_linked_df <- 
+  coordinate_linked_df |> 
+  dplyr::mutate(
+    charger_distances =
+      sf::st_distance(
+        synthetic_survey_coordinates, 
+        charger_data[nearest_charger,] |> 
+          sf::st_transform(3035), 
+        by_element = TRUE
+      ) |>
+      as.vector()
+  )
+
+# add a column for the distances
+coordinate_linked_df  <- 
+  coordinate_linked_df |> 
+ dplyr:: mutate(
+    # Calculate distances in kilometers 
+    charg_dist_km = as.numeric(charger_distances) / 1000) 
+
+summary(coordinate_linked_df$charg_dist_km)
+
+```
+
+## Population Buffers
+
+...and we're not yet done: we still need the population in the neighborhood. Let's calculate buffers of 5000 meters and add the population mean values to our dataset.
+
+```{r}
+# download data & extract information
+inhabitants <- z11::z11_get_1km_attribute(Einwohner)
+
+# spatially link "on the fly"
+population_buffers <- 
+  terra::extract(
+    inhabitants, 
+    synthetic_survey_coordinates |>  
+      sf::st_buffer(5000), 
+    fun = mean,
+    na.rm = TRUE,
+    ID = FALSE,
+    raw = TRUE
+  ) |> 
+  unlist()
+
+# link with data 
+coordinate_linked_df <-
+  coordinate_linked_df |> 
+  dplyr::mutate(population_buffer = population_buffers)
+```
+
+
+## Join with Survey
+
+We hope you're not tired of joining data tables. Since we care a tiny bit more about data protection than others, we have yet another joining task left: joining the information we received using our (protected) fake coordinates to the actual survey data via the correspondence table.
+
+:::: columns
+::: {.column width="50%"}
+```{r}
+#| eval: false
+#| fig.asp: 1
+# last joins for now
+fake_survey_data_spatial <-
+  # first join the id
+  dplyr::left_join(
+    correspondence_table, 
+    district_linked_df, 
+    by = "id"
+  ) |> 
+  dplyr::left_join(
+    coordinate_linked_df, 
+    by = "id"
+  ) |> 
+  # join the survey data
+  dplyr::left_join(
+    fake_survey_data,
+    by = "id"
+  ) |> 
+  dplyr::select(-id)
+
+fake_survey_data_spatial |> 
+  dplyr::select(
+    entrans, pop_dens, charger_dens, publictransport_meandist,
+    charg_dist_km, num_charger, population_buffer
+  ) |>  
+  corrr::correlate() |> 
+  corrr::network_plot(min_cor = .1)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| fig.asp: 1
+# last joins for now
+fake_survey_data_spatial <-
+  # first join the id
+  dplyr::left_join(
+    correspondence_table, 
+    district_linked_df, 
+    by = "id"
+  ) |> 
+  dplyr::left_join(
+    coordinate_linked_df, 
+    by = "id"
+  ) |> 
+  # join the survey data
+  dplyr::left_join(
+    fake_survey_data,
+    by = "id"
+  ) |> 
+  dplyr::select(-id)
+
+fake_survey_data_spatial |> 
+  dplyr::select(
+    entrans, pop_dens, charger_dens, publictransport_meandist,
+    charg_dist_km, num_charger, population_buffer
+  ) |>  
+  corrr::correlate() |> 
+  corrr::network_plot(min_cor = .1)
+```
+:::
+::::
+
+## Exercise 2_2_1: Spatial Joins
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/2_2_1_Spatial_Joins.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/2_2_1_Spatial_Joins.html)
