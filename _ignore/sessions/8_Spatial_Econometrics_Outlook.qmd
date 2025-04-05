@@ -19,6 +19,15 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r}
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(terra)
+library(tmap)
+```
+
 ## Now
 
 ```{r}
@@ -26,5 +35,357 @@ editor_options:
 source("course_content.R") 
 
 course_content |> 
-  kableExtra::row_spec(14, background = "yellow")
+  kableExtra::row_spec(12, background = "yellow")
 ```
+
+## What are spatial econometrics?
+
+Econometrics could be reduced to using statistics to model (complex) theories ... 
+
+- it is interesting for causal inference and thinking
+- as default we think about regression analysis
+  
+Therefore, spatial econometrics combine spatial analysis and econometrics
+
+- study of why spatial relationships (i.e., autocorrelation) exist
+- how spatial autocorrelation affects our outcome of interest
+
+**What is the data generation process?**
+
+
+
+## Spatial diffusion vs. spatial spillover
+
+There are at least two common mechanisms we are interested in spatial econometrics
+
+:::: columns
+::: {.column width="50%"}
+**Diffusion**
+
+- $y_i$ affects $y_j$ through $w_{ij}$
+- $y_j$ affects $y_i$ through $w_{ji}$
+- that's a feedback effect 
+  - endogenous by design!
+- Examples:
+  - pandemic and policy measures to contain the pandemic
+  - diffusion of violence in a war
+:::
+
+::: {.column width="50%"}
+**Spillover**
+- $x_i$ affects $y_j$ through $w_{ij}$
+- $x_j$ affects $y_i$ through $w_{ij}$
+- Examples:
+  - spillover of economic strength and trade 
+:::
+::::
+
+## Let's have another look at our chessboard
+
+:::: columns
+::: {.column width="50%"}
+We have to think about theories and mechanisms and how they translate into spatial effects and the data generation process.
+
+That said, there are tests to check for the specific data generation process at hand, but they are not recommended to be used naively.
+:::
+
+::: {.column width="50%"}
+![](../img/queen_interdependent.png){fig-align="center" width="50%"}
+:::
+::::
+
+## Is it meaningful or just nuisances?
+
+Space can be important in our analysis in two ways. 
+
+- it's meaningful in our theory and we thus interpret it accordingly after estimation
+- it can distort our empirical estimates, producing bias, inconsistency, and inefficiency
+
+**We can address both of these different perspectives in our analysis with spatial econometric methods.**
+
+## Formulas... models, models, models
+
+<small>
+Linear Regression:
+
+$$Y = X\beta + \epsilon$$
+
+Spatial Lag Y / Spatial Autoregressive Model (SAR, Diffusion):
+
+$$Y = \rho WY + X\beta + \epsilon$$
+
+Spatial Lag X Model (SLX, Spillover):
+
+$$Y = X\beta + WX\theta + \epsilon$$
+
+Spatial Error Model (SEM): 
+
+$$Y = X\beta + u$$
+$$u = \lambda Wu + \epsilon$$
+</small>
+
+## Flavors and extensions
+
+<small>
+Spatial Durbin Model:
+
+$$Y = \rho WY + X\beta + WX\theta + \epsilon $$
+
+Spatial Durbin Error Model:
+
+$$Y = X\beta + WX\theta + u$$
+$$u = \lambda Wu + \epsilon$$
+
+Combined Spatial Autocorrelation Model:
+
+$$Y = \rho WY + X\beta + u$$
+$$u = \lambda Wu + \epsilon$$
+
+Manski Model:
+
+$$Y = \rho WY + WX\theta + X\beta + u$$
+$$u = \lambda Wu + \epsilon$$
+</small>
+
+
+![](../img/formulas.gif){.r-stretch fig-align="center"}
+</small>Source:[Tenor](https://tenor.com/de/view/formulas-hangover-gif-4841358)</small>
+
+## Intermediate summary
+
+There are a lot of models you could estimate to *explain* spatial autocorrelation. And there's a vast body of literature on what's the best choice for which application. 
+
+We'd explicitly like to recommend the work of [Tobias Rüttenauer](https://ruettenauer.github.io/publication/) for us social scientists. [Here](https://ruettenauer.github.io/SICSS-Spatial/index.html) are some really nice workshop materials.
+
+
+**In this session, we will only estimate Spatial Lag Y and X and Spatial Error Models.**
+
+## 'Research' question and data
+
+We will use the same example as in the previous session. But this time, we will actually test if one of our spatial regression models helps investigating the data generation process any further. We may ask:
+
+1. Do immigrant shares have an effect on AfD voting shares within voting districts?
+2. Do immigrant shares have an effect on AfD voting shares between neighborhoods? (=spillover)
+3. Do AfD voting shares have an effect on AfD voting shares between neighborhoods? (=diffusion)
+
+It might also be a good idea to control for inhabitant numbers within the voting districts.
+
+```{r}
+#| include: false
+voting_districts <-
+  sf::st_read("../../data/Stimmbezirk.shp") |> 
+  dplyr::transmute(Stimmbezirk = as.numeric(nummer)) |> 
+  sf::st_transform(3035)
+
+afd_votes <-
+  glue::glue(
+    "https://www.stadt-koeln.de/wahlen/bundestagswahl/09-2021/praesentation/\\
+    Open-Data-Bundestagswahl476.csv"
+  ) |> 
+  readr::read_csv2() |> 
+  dplyr::transmute(Stimmbezirk = `gebiet-nr`, afd_share = (F1 / F) * 100)
+
+election_results <-
+  dplyr::left_join(
+    voting_districts,
+    afd_votes,
+    by = "Stimmbezirk"
+  )
+
+immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("../../data/inhabitants_cologne.tif")
+
+immigrant_share_cologne <-
+  (immigrants_cologne / inhabitants_cologne) * 100
+
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    immigrant_share = 
+      exactextractr::exact_extract(
+        immigrant_share_cologne, election_results, 'mean', progress = FALSE
+      ),
+    inhabitants = 
+      exactextractr::exact_extract(
+        inhabitants_cologne, election_results, 'mean', progress = FALSE
+      )
+  )
+```
+
+## Linear regression
+
+```{r}
+linear_regression <-
+  lm(afd_share ~ immigrant_share + inhabitants, data = election_results)
+
+summary(linear_regression)
+```
+
+## Now we need a spatial weight
+
+To estimate a spatial regression we, once again, have to construct a spatial weight as in the analysis of spatial autocorrelation. In fact, we'll use the same approach as before.
+
+```{r}
+queen_neighborhoods <- spdep::poly2nb(election_results, queen = TRUE)
+
+queen_W <- spdep::nb2listw(queen_neighborhoods, style = "W")
+```
+
+## Spatial Error Model: If we want to control nuisance
+
+```{r}
+spatial_error_model <-
+  spatialreg::errorsarlm(
+    afd_share ~ immigrant_share + inhabitants,
+    data = election_results,
+    listw = queen_W
+    )
+
+summary(spatial_error_model)
+```
+
+## Spatial Lag X Model: estimating spillovers
+
+```{r}
+spatial_lag_x_model <-
+  spatialreg::lmSLX(
+    afd_share ~ immigrant_share + inhabitants,
+    data = election_results,
+    listw = queen_W
+  )
+
+summary(spatial_lag_x_model)
+```
+
+## Spatial Lag Y Model: estimating diffusion
+
+```{r}
+spatial_lag_y_model <-
+  spatialreg::lagsarlm(
+    afd_share ~ immigrant_share + inhabitants,
+    data = election_results,
+    listw = queen_W)
+
+summary(spatial_lag_y_model)
+```
+
+## Comparison: What's 'better'?
+
+```{r}
+AIC(spatial_error_model, spatial_lag_x_model, spatial_lag_y_model)
+
+spdep::lm.LMtests(linear_regression, queen_W, test = c("LMerr", "LMlag"))
+```
+
+Let's stick to our theory, shall we?
+
+## Of higher importance: interpretation
+
+Unfortunately, in case of a Spatial Lag Y Model the spatial parameter $\rho$ only tells us that the effect is (statistically) significant -- or not. 
+
+- remember: these models are endegenous by design
+  - we have effects of $y_j$ on $y_i$ and vice versa
+  - what a mess
+  
+Luckily, there's a method to decompose the spatial effects into direct, indirect and total effects: **estimating impacts**
+
+## Impact estimation in `R`
+
+This time, let's start with the Spatial Lag Y Model:
+
+```{r}
+spatialreg::impacts(spatial_lag_y_model, listw = queen_W)
+```
+
+Compare it to the 'simple' regression output:
+
+```{r}
+coef(spatial_lag_y_model)
+```
+
+## Spatial Lag X impacts
+
+```{r}
+spatialreg::impacts(spatial_lag_x_model, listw = queen_W)
+```
+
+Compare it to the 'simple' regression output:
+
+```{r}
+coef(spatial_lag_x_model)
+```
+
+## If you need p-values and stuff
+
+```{r}
+spatialreg::impacts(spatial_lag_y_model, listw = queen_W, R = 500) |> 
+  summary(zstats = TRUE, short = TRUE)
+```
+
+## Exercise 2_3_2: Spatial Regression
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/exercises/2_4_1_Spatial_Regression.html)
+
+[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2024/solutions/2_4_1_Spatial_Regression.html)
+
+
+## Outlook {.center style="text-align: center;"}
+
+## This week
+
+```{r}
+#| echo: false
+course_content
+```
+
+## What's left
+
+:::: columns
+::: {.column width="50%"}
+Other map types such as
+
+- cartograms
+- hexagon maps
+- (more)animated maps
+- network graphs
+
+
+GIS techniques, such as
+
+- geocoding
+- routing
+- cluster analysis
+
+
+More Advanced Spatial(-temporal) Modeling 
+
+More data sources...
+:::
+
+::: {.column width="50%"}
+![](../img/kontakt.gif){fig-align="center" width="50%"}
+:::
+::::
+
+
+## Data Sources
+
+Some more information:
+
+- geospatial data are interdisciplinary
+- amount of data feels unlimited
+- data providers and data portals are often specific in the area and/or the information they cover
+
+Some random examples: 
+
+- [Eurostat](https://ec.europa.eu/eurostat/web/gisco/geodata)
+- [European Spatial Data Infrastructure](https://inspire.ec.europa.eu/about-inspire/563)
+- [John Hopkins Corona Data Hub and Dashboard](https://coronavirus.jhu.edu/map.html)
+- [US Census Bureau](https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html)
+- ...
+
+
+## The End {.center style="text-align: center;"}
+
+
