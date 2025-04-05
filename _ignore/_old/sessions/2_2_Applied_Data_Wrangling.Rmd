@@ -550,7 +550,6 @@ secret_variable_we_are_hiding_from_you <-
         sd = 10, 
         r = -0.5
       )
-
 ```
 
 ```{r simulate-survey-data}

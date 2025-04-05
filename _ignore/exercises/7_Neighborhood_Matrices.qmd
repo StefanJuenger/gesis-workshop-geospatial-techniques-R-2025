@@ -104,39 +104,46 @@ election_results <-
 ```
 
 ### Exercises
+
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
+
 As in the lecture, create a neighborhood (weight) matrix, but this time, do it for Queen and Rook neighborhoods. Also, apply a row normalization.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 You could either use the `sdep` package with its function `spdep::poly2nb()` or the more modern approach of the `sfdep` package using the function `sfdep::st_contiguity()`. In both cases, you have to set the option `queen = FALSE` for Rook neighborhoods.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
+
 We have not used them, but you can also create distance-based weight matrices. Use the package of your choice again and create weights for a distance between 0 and 5000 meters. Use again row-normalization.
 
 You must also convert the polygon data to point coordinates for this exercise. We'd propose to use the centroids for this task:
 
 `election_results_centroids <- sf::st_centroid(election_results)`
 
-Use a map to corroborate this conversion was successful. 
+Use a map to corroborate this conversion was successful.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 If you use `spdep`, use the function `spdep::dnearneigh()`; if you use `sfdep`, use the function `sfdep::st_dist_band()`.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 3
+
 Now, let's see how these different spatial weights perform in an analysis. Calculate Moran's I and Geary's C for each one of the weights and report their results for the variable `afd_share`.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 It is essential to which path you have taken before -- using `spdep` and `sfdep` -- as it determines how you solve this exercise.
 :::
 
@@ -144,6 +151,7 @@ It is essential to which path you have taken before -- using `spdep` and `sfdep`
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 1
+
 ```{r}
 # spdep
 queen_neighborhood <-
@@ -172,11 +180,11 @@ election_results <-
     rook_W = sfdep::st_weights(rook_neighborhood)
   )
 ```
-
 :::
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 2
+
 ```{r}
 library(ggplot2)
 
@@ -201,11 +209,11 @@ election_results_centroids <-
     weights_5000 = sfdep::st_weights(neighbors_5000)
   )
 ```
-
 :::
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 3
+
 ```{r}
 # spdep
 spdep::moran.test(election_results$immigrant_share, listw = queen_W)
