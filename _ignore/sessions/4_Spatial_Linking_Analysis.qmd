@@ -137,9 +137,11 @@ sf::st_drop_geometry(echarging_sf) |>
 ## APIs
 
 Geospatial data tend to be quite big
+
 - pressure to distribute data efficiently
 
 Data dumps (on the internet) may not be helpful 
+
 - when resources are low 
 - time's a factor
 - the data have a large geographic extent
@@ -159,6 +161,7 @@ Often a *Programming Application Interfaces* (API) is used
 ## Example: access to public transport
 
 Say, we're interested in the accessibility of public transport in Cologne
+
 - bus, tram, etc.
 - all platforms and vehicles should be wheel-chair accessible
 
@@ -246,6 +249,7 @@ tm_shape(cologne_pt_stops) +
 ## Example: GeoJSON files
 
 JSON files are pretty popular
+
 - standardized and well-structured
 - similar to XML-files, but human readability is a bit better
 - also easy to parse for editors and browser
@@ -313,6 +317,7 @@ tm_shape(park_and_ride) +
 It is not only vector data that can be processed through these mechanisms.
 
 The idea is the same for raster data
+
 - accessing the information through URLs
 - just the downloaded data formats differ
 
@@ -573,7 +578,7 @@ tm_shape(masked_inhabitants_cologne) +
 
 ## Combining Cropping and Masking
 
-```{r crop-mask-raster}
+```{r}
 cropped_masked_inhabitants_cologne <-
   terra::crop(inhabitants_cologne, deutz) |> 
   terra::mask(terra::vect(deutz))
@@ -621,7 +626,7 @@ immigrant_rate <-
 
 To extract the raster values at a specific point by location, we use the following:
 
-```{r raster-extraction}
+```{r}
 terra::extract(immigrant_rate, echarging_sf_cologne, ID = FALSE)
 ```
 
@@ -629,7 +634,7 @@ terra::extract(immigrant_rate, echarging_sf_cologne, ID = FALSE)
 
 This information can be added to an existing dataset (our points in this example):
 
-```{r add-results}
+```{r}
 echarging_sf_cologne$immigrant_rate_value <-
   terra::extract(immigrant_rate, echarging_sf_cologne, ID = FALSE) |> 
   unlist()
@@ -836,7 +841,7 @@ sobel <- function(r) {
 
 ## Data preparation and application of filter
 
-```{r data-prep-filter}
+```{r}
 old_extent <- terra::ext(immigrant_rate) 
 new_extent <- old_extent + c(10000, -10000, 10000, -10000)
 
@@ -848,8 +853,6 @@ smaller_immigrant_rate[smaller_immigrant_rate < 10] <- NA
 
 immigrant_edges <- sobel(smaller_immigrant_rate)
 ```
-
----
 
 ## Comparison
 

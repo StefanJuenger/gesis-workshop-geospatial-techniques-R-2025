@@ -18,17 +18,6 @@ format:
     # footer: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
     logo: ../img/GESIS-Logo_2024.svg.png
     toc: false
-include-in-header:
-  - text: |
-      <style>
-      #.reveal .slide-logo {
-      #  max-height: unset;
-      #  height: 60px;
-      #}
-      .reveal .slides section h2 {
-        margin-bottom: 50px;
-      }
-      </style>
 editor_options: 
   chunk_output_type: console
 ---

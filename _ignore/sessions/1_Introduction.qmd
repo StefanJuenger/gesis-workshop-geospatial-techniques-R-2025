@@ -29,7 +29,7 @@ By the end of this course, you should...
 
 ---
 
-![](../img/r_first_then.png){fig-align="center" width="50%"}
+![](../img/r_first_then.png){.r-stretch fig-align="center"}
 
 Illustration by [Allison Horst](https://github.com/allisonhorst/stats-illustrations)
 
