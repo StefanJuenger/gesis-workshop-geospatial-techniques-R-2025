@@ -1,0 +1,165 @@
+---
+title: "Exercise 8: Spatial Regression"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+### Exercises
+Let's see how different neighborhood matrix styles can impact the estimates of spatial regression models. Run the code below in order to have the data in place for this exercise. (You can ignore any warning messages.)
+
+```{r}
+#| eval: false
+voting_districts <-
+  sf::st_read("./data/Stimmbezirk.shp") |> 
+  dplyr::transmute(Stimmbezirk = as.numeric(nummer)) |> 
+  sf::st_transform(3035)
+
+afd_votes <-
+  glue::glue(
+    "https://www.stadt-koeln.de/wahlen/bundestagswahl/09-2021/praesentation/\\
+    Open-Data-Bundestagswahl476.csv"
+  ) |> 
+  readr::read_csv2() |> 
+  dplyr::transmute(Stimmbezirk = `gebiet-nr`, afd_share = (F1 / F) * 100)
+
+election_results <-
+  dplyr::left_join(
+    voting_districts,
+    afd_votes,
+    by = "Stimmbezirk"
+  )
+
+iimmigrants_cologne <- terra::rast("./data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("./data/inhabitants_cologne.tif")
+
+immigrant_share_cologne <-
+  (immigrants_cologne / inhabitants_cologne) * 100
+
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    immigrant_share = 
+      exactextractr::exact_extract(
+        immigrant_share_cologne, election_results, 'mean', progress = FALSE
+      ),
+    inhabitants = 
+      exactextractr::exact_extract(
+        inhabitants_cologne, election_results, 'mean', progress = FALSE
+      )
+  )
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+voting_districts <-
+  sf::st_read("../../data/Stimmbezirk.shp") |> 
+  dplyr::transmute(Stimmbezirk = as.numeric(nummer)) |> 
+  sf::st_transform(3035)
+
+afd_votes <-
+  glue::glue(
+    "https://www.stadt-koeln.de/wahlen/bundestagswahl/09-2021/praesentation/\\
+    Open-Data-Bundestagswahl476.csv"
+  ) |> 
+  readr::read_csv2() |> 
+  dplyr::transmute(Stimmbezirk = `gebiet-nr`, afd_share = (F1 / F) * 100)
+
+election_results <-
+  dplyr::left_join(
+    voting_districts,
+    afd_votes,
+    by = "Stimmbezirk"
+  )
+
+immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
+
+inhabitants_cologne <- terra::rast("../../data/inhabitants_cologne.tif")
+
+immigrant_share_cologne <-
+  (immigrants_cologne / inhabitants_cologne) * 100
+
+election_results <-
+  election_results |> 
+  dplyr::mutate(
+    immigrant_share = 
+      exactextractr::exact_extract(
+        immigrant_share_cologne, election_results, 'mean', progress = FALSE
+      ),
+    inhabitants = 
+      exactextractr::exact_extract(
+        inhabitants_cologne, election_results, 'mean', progress = FALSE
+      )
+  )
+```
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+Re-use the code from the previous exercise for the Queen neighborhoods. But this time, do one weight matrix with row-normalization and another one with minmax-normalization. Insert them into two spatial regression lag models of your choice using the same variables as in the lecture, i.e., both of them should either be a Spatial Lag Y or Spatial Lag X model.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+For minmax-normalization, you would have to use the option `style = "minmax"` in the `spdep:nb2listw()` function.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+Calculate the impacts of both models. What is your observation?
+:::
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+```{r}
+# spdep
+queen_neighborhood <-
+  spdep::poly2nb(
+    election_results,
+    queen = TRUE
+  )
+
+queen_W <- spdep::nb2listw(queen_neighborhood, style = "W")
+
+queen_minmax <- spdep::nb2listw(queen_neighborhood, style = "minmax")
+
+# run regressions
+spatial_lag_y_W <-
+  spatialreg::lagsarlm(
+    afd_share ~ immigrant_share + inhabitants,
+    data = election_results,
+    listw = queen_W
+    )
+
+spatial_lag_y_minmax <-
+  spatialreg::lagsarlm(
+    afd_share ~ immigrant_share + inhabitants,
+    data = election_results,
+    listw = queen_minmax
+    )
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+```{r}
+spatialreg::impacts(spatial_lag_y_W, listw = queen_W)
+spatialreg::impacts(spatial_lag_y_minmax, listw = queen_minmax)
+
+# There are some slight differences in the estimate of the indirect effects but
+# more severe in the calculation of the direct ones.
+```
+:::
