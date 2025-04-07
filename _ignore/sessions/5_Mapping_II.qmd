@@ -1,5 +1,6 @@
 ---
 title: "Mapping II"
+subtitle: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
 author: "Stefan Jünger & Dennis Abel"
 date: April 10, 2025
 execute:
@@ -11,10 +12,7 @@ format:
     smaller: true
     scrollable: true
     slide-number: "c/t"
-    navigation-mode: vertical
     logo: ../img/GESIS-Logo_2024.svg.png
-    # fig-dpi: 300
-    fig-align: "center"
 editor_options: 
   chunk_output_type: console
 ---
