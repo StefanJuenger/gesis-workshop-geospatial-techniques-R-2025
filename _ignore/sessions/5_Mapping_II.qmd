@@ -209,7 +209,7 @@ We'll concentrate on mapping the e-car share on the district level.
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 # map aethetics
 ggplot() +
   geom_sf(
@@ -225,7 +225,7 @@ ggplot() +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 # map aethetics
 ggplot() +
   geom_sf(
@@ -247,7 +247,7 @@ Are you having trouble choosing the right color? There are some excellent tutori
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 # change color palette
 ggplot() +
   geom_sf(
@@ -262,7 +262,7 @@ ggplot() +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 # change color palette
 ggplot() +
   geom_sf(
@@ -283,7 +283,7 @@ You are changing your map, step by step.
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 ggplot() +
   geom_sf(
     data = german_districts_enhanced, 
@@ -302,7 +302,7 @@ ggplot() +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 ggplot() +
   geom_sf(
     data = german_districts_enhanced, 
@@ -326,8 +326,7 @@ ggplot() +
 ```{r}
 #| eval: false
 #| fig.asp: 1
-# realizing that my shapefile includes
-# polygons of oceans and lakes
+# the shapefile includes polygons of oceans and lakes
 # easy fix on the fly when you know your data
 german_states <-
   german_states |>  
@@ -510,7 +509,7 @@ The `theme` controls all 'non-data' display. If you want to get rid of the defau
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 # use the object ecar_map as base layer
 ecar_map +
   # empty your theme
@@ -530,7 +529,7 @@ ecar_map +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 # use the object ecar_map as base layer
 ecar_map +
   # empty your theme
@@ -599,7 +598,7 @@ There is one necessary step to do. You should always make sure to include and ci
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 ecar_map +
   # add title
   labs(
@@ -618,7 +617,7 @@ ecar_map +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 ecar_map +
   # add title
   labs(
@@ -635,12 +634,9 @@ ecar_map +
 :::
 ::::
 
+## Exercise 5_1: Advanced Maps
 
-## Exercise 2_3_1: Advanced Maps: The Basis
-
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R/exercises/2_3_1_Advanced_Maps_Basis_question.html)
-
-[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R/solutions/2_3_1_Advanced_Maps_Basis_solution.html)
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/5_1_Advanced_Maps.html)
 
 ## To be continued...
 
@@ -692,7 +688,7 @@ Using `geom_label` to get a text box that holds a character string associated wi
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 ecar_map +
   # add the label
   geom_label(
@@ -716,7 +712,7 @@ ecar_map +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 ecar_map +
   # add the label
   geom_label(
@@ -746,7 +742,7 @@ You can also use `ggplot2` to create maps with raster data. There are several wa
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 cologne_immigrants <- 
   terra::rast("../../data/immigrants_cologne.tif")
 
@@ -767,7 +763,7 @@ ggplot() +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 cologne_immigrants <- 
   terra::rast("../../data/immigrants_cologne.tif")
 
@@ -802,7 +798,7 @@ Checkout [Github](https://paleolimbot.github.io/ggspatial/).
 ::: {.column width="50%"}
 ```{r}
 #| eval: false
-#| fig.asp: 1
+#| fig.asp: .8
 # add scalebar and north arrow
 ecar_map +
   ggspatial::annotation_scale(
@@ -818,7 +814,7 @@ ecar_map +
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
-#| fig.asp: 1
+#| fig.asp: .8
 # add scalebar and north arrow
 ecar_map +
   ggspatial::annotation_scale(
@@ -832,6 +828,6 @@ ecar_map +
 :::
 ::::
 
-## Exercise 2_3_2:
+## Exercise 5_2:
 
 **Create your best Map!**
