@@ -1,23 +1,18 @@
 ---
 title: "Data Formats"
-# subtitle: "Introduction"
+subtitle: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
 author: "Stefan Jünger & Dennis Abel"
 date: April 09, 2025
-# institute: GESIS Workshop
 execute:
   echo: true
 format:
   revealjs:
     embed-resources: true
-    theme: simple
+    theme: [simple, tweaks.css]
     smaller: true
-    margin-top: "0"
     scrollable: true
     slide-number: "c/t"
-    navigation-mode: vertical
-    # footer: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
     logo: ../img/GESIS-Logo_2024.svg.png
-    toc: false
 editor_options: 
   chunk_output_type: console
 ---
@@ -62,7 +57,7 @@ So: Always know what kind of data you are dealing with!
 
 :::: columns
 ::: {.column width="50%"}
-```{r world-cities}
+```{r}
 #| echo: false
 #| out.width: "120%"
 library(tmap)
@@ -110,8 +105,8 @@ Only geometries means that we do not have any other information.
 
 We need to assign attributes to each geometry to hold additional information $\rightarrow$ data tables called attribute tables
 
-- Each row represents a geometric object, which we can also call observation or case.
-- Each column holds an attribute or, in "our" language, a variable.
+- Each row represents a geometric object, which we can also call observation, feature, or case
+- Each column holds an attribute or, in 'our' language, a variable
 
 ## Vector data: attribute tables
 
@@ -123,22 +118,18 @@ We need to assign attributes to each geometry to hold additional information $\r
 - Shapefile `.shp`
 - GeoJSON `.geojson`
 - ...
-- sometimes, vector data come even in a text format, such as `CSV`
+- Sometimes, vector data come even in a text format, such as `CSV`
 
 ## Welcome to the proprietary reality: shapefiles
 
-Both the geometric information and attribute table can be saved within one file. Rather often, *ESRI Shapefiles* are used to store vector data.
-
-Shapefiles consist of at least three mandatory files with the extensions:
+Both the geometric information and attribute table can be saved within one file. Rather often, *ESRI Shapefiles* are used to store vector data. Shapefiles consist of at least three mandatory files with the extensions:
 
 - `.shp` : shape format
 - `.shx` : shape index format
 - `.dbf` : attribute format
 - (`.prj`: CRS/Projection)
 
-You don't have to remember what they stand for, but you can only load the data if one of those files is missing.
-
----
+You don't have to remember what they stand for, but you can only properly work with the data if none of those files is missing.
 
 ## Welcome to `simple features`
 
@@ -199,17 +190,16 @@ plot(german_states["SN_L"])
 
 ```{r}
 #| echo: false
-plot(german_states["SN_L"])
+# plot(german_states["SN_L"])
 
 sf::st_bbox(german_states) |> 
-    sf::st_as_sfc(crs = 25832) |> 
-    plot(add = TRUE)
+    sf::st_as_sfc(crs = sf::st_crs(german_states)) |> 
+    plot()
 ```
 
 ## Inspect your data: classics
 
-Let's have a quick look at the imported data.
-Like every other data set, we inspect the data to check some metadata and see if the importing worked correctly.
+Let's have a quick look at the imported data. Like with every other data set, we can inspect the data to check some metadata and see if the importing worked correctly.
 
 ```{r}
 # object type
@@ -235,25 +225,22 @@ head(german_states, 2)
 
 ## Inspect your data: spatial features
 
-Besides our general data inspection, we also want to check the spatial features of our import.
-This includes the geometric type (points? lines? polygons?) and the coordinate reference system.
+Besides our general data inspection, we may also want to check the spatial features of our import. This check includes the geometric type (points? lines? polygons?) and the coordinate reference system.
 
 ```{r}
 # type of geometry
 sf::st_geometry(german_states) 
 ```
 
-
 ## Inspect your data: spatial features
 
-Each polygon is defined by several points that are connected to build an enclosed area. Several polygons in one data frame have the `sf` type multipolygons. Just as Germany consists of several states, the polygon Germany consists of several smaller polygons.
+Each polygon is defined by several points that are connected to build an enclosed area. Several polygons in one data frame have the `sf` type `multipolygons`. Just as Germany consists of several states, the polygon Germany consists of several smaller polygons.
 
 ```{r}
-# the simple features column
-attr(german_states, "sf_column") 
-
-# further inspecting 
-dplyr::glimpse(german_states$geometry)
+# extract the simple features column and further inspecting 
+attr(german_states, "sf_column") |> 
+  dplyr::pull(german_states, var = _) |> 
+  dplyr::glimpse()
 ```
 
 ## Inspect your data: spatial features
@@ -265,27 +252,18 @@ Remember: The Coordinate Reference System is very important. A crucial step is t
 sf::st_crs(german_states) 
 ```
 
-## Exercise 1_2_1: import vector data
+## Exercise 2_1: Import Vector Data
 
-<br>
-<br>
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/2_1_Import_Vector_Data.html)
 
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/1_2_1_Import_Vector_Data.html)
-
-<br><br>
-
-[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/solutions/1_2_1_Import_Vector_Data.html)
-
-## 1. Raster data {.center style="text-align: center;"}
+## 2. Raster data {.center style="text-align: center;"}
 
 ## Difference to vector data
-
-There are quite some few differences to vector data.
 
 Data Structure:
 
 - Other data format(s), different file extensions
-- geometries do not differ within one dataset
+- Geometries do not differ within one dataset
 
 Implications:
 
@@ -293,9 +271,8 @@ Implications:
 
 Benefits:
 
-- can be way more efficient
-- straightforward processing of raster values and extraction of zonal statistics
-- it's like working with simple tabular data
+- Can be way more efficient and straightforward to process
+- It's like working with simple tabular data
 
 ## Visual difference between vector and raster data
 
@@ -313,8 +290,8 @@ Benefits:
 ## Metadata
 
 - Information about geometries is globally stored
-- they are the same for all observations
-- their location in space is defined by their cell location in the data table
+- They are the same for all observations
+- Their location in space is defined by their cell location in the data table
 - Without this information, raster data were simple image files
 
 ## Important metadata
@@ -352,9 +329,9 @@ terra::plot(raster_layer)
 - Network common data format `.nc`
 - Esri grid `.asc`
 - ...
-- sometimes, raster data come even in a text format, such as `CSV`
+- Sometimes, raster data come even in a text format, such as `CSV`
 
-**In this course, we will only use `tiff` files as it is pretty common. Just be aware that there a different formats out there.**
+**In this course, we will only use `tiff` files as they are pretty common. Just be aware that there a different formats out there.**
 
 
 ## Implementations in `R`
@@ -363,7 +340,7 @@ terra::plot(raster_layer)
 
 Some other developments, e.g., in the `stars` package, also implement an interface to simple features in `sf`.
 
-The `terra` package also helps to use more elaborate zonal statistics. The same holds for the `spatstat` package.
+The `terra` package helps to use more elaborate zonal statistics. But the `spatstat` package is more elaborated.
 
 ## Loading raster tiffs (census data)
 
@@ -392,12 +369,14 @@ inhabitants_cologne
 :::: columns
 ::: {.column width="50%"}
 ```{r}
+#| fig.asp: 1
 terra::plot(immigrants_cologne)
 ```
 :::
 
 ::: {.column width="50%"}
 ```{r}
+#| fig.asp: 1
 terra::plot(inhabitants_cologne)
 ```
 :::
@@ -416,6 +395,7 @@ inhabitants_cologne
 ## Simple statistics
 
 Working with raster data is straightforward
+
 - quite speedy
 - yet not as comfortable as working with `sf` objects
 
@@ -454,18 +434,12 @@ immigrant_rate
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
+#| fig.asp: .8
 terra::plot(immigrant_rate)
 ```
 :::
 ::::
 
-## Exercise 1_2_2: Basic Raster Operations
+## Exercise 2_2: Basic Raster Operations
 
-<br>
-<br>
-
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/1_2_2_Basic_Raster_Operations.html)
-
-<br><br>
-
-[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/solutions/1_2_2_Basic_Raster_Operations.html)
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/2_2_Basic_Raster_Operations.html)

@@ -4,7 +4,7 @@ library(quarto)
 sessions_qmd <-
   list.files("./_ignore/sessions/", pattern = ".qmd", full.names = TRUE)
 
-for(i in sesstions_qmd) { quarto::quarto_render(i) }
+for(i in sessions_qmd) { quarto::quarto_render(i) }
 
 sessions_html <-
   list.files("./_ignore/sessions/", pattern = ".html", full.names = TRUE)

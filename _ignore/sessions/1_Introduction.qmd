@@ -1,16 +1,17 @@
 ---
 title: "Introduction"
-# subtitle: "Introduction"
+subtitle: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
 author: "Stefan Jünger & Dennis Abel"
 date: April 09, 2025
-# institute: GESIS Workshop
+execute:
+  echo: true
 format:
   revealjs:
     embed-resources: true
     theme: [simple, tweaks.css]
     smaller: true
     scrollable: true
-    # footer: "GESIS Workshop: Introduction to Geospatial Techniques for Social Scientists in R"
+    slide-number: "c/t"
     logo: ../img/GESIS-Logo_2024.svg.png
 editor_options: 
   chunk_output_type: console
@@ -22,10 +23,10 @@ This course will teach you how to exploit `R` and apply its geospatial technique
 
 By the end of this course, you should...
 
--   Be comfortable with using geospatial data in `R`
--   Including importing, wrangling, and exploring geospatial data
--   Be able to create maps based on your very own processed geospatial data in `R`
--   Feel prepared for (your first steps in) spatial analysis
+- Be comfortable with using geospatial data in `R`
+- Including importing, wrangling, and exploring geospatial data
+- Be able to create maps based on your very own processed geospatial data in `R`
+- Feel prepared for (your first steps in) spatial analysis
 
 ---
 
@@ -35,9 +36,16 @@ Illustration by [Allison Horst](https://github.com/allisonhorst/stats-illustrati
 
 ## We are (necessarily) selective
 
-There's a multitude of spatial `R` packages - We cannot cover all of them - and we cannot cover all functions - You may have used some we are not familiar with
+There's a multitude of spatial `R` packages 
 
-We will show the use of packages we exploit in practice - There's always another way of doing things in `R` - Don't hesitate to bring up your solutions
+- We cannot cover all of them 
+- And we cannot cover all functions 
+- You may have used some we are not familiar with
+
+We will show the use of packages we exploit in practice 
+
+- There's always another way of doing things in `R` 
+- Don't hesitate to bring up your solutions
 
 **You can't learn everything at once, but you also don't have to!**
 
@@ -45,11 +53,10 @@ We will show the use of packages we exploit in practice - There's always another
 
 ::::: columns
 ::: {.column width="40%"}
--   Knowledge of `R`, its syntax, and internal logic
-    -   Affinity for using script-based languages
-    -   Don't be scared to wrangle data with complex structures
--   Working versions of `R` (and `Rstudio`) on your computer
-    -   Ideally, with the packages installed, we asked you upfront
+- Knowledge of `R`, its syntax, and internal logic
+- Affinity for using script-based languages
+- Don't be scared to wrangle data with complex structures
+- Working versions of `R` (and `Rstudio`) on your computer
 :::
 
 ::: {.column width="60%"}
@@ -57,7 +64,7 @@ We will show the use of packages we exploit in practice - There's always another
 :::
 :::::
 
-## About us
+## About us (Stefan)
 
 ::::: columns
 ::: {.column width="40%"}
@@ -76,15 +83,15 @@ We will show the use of packages we exploit in practice - There's always another
 :::
 :::::
 
-## About us
+## About us (Dennis)
 
 ::::: columns
 ::: {.column width="40%"}
-Dennis
+![](../img/dennis.png){fig-align="center" width="75%"}
 :::
 
 ::: {.column width="60%"}
-- Senior Researcher in the team Survey Data Augmentation at the GESIS department Survey Data Curation
+- Postdoctoal Researcher in the team Survey Data Augmentation at the GESIS department Survey Data Curation
 - Ph.D. in social sciences, University of Cologne
 - Research interests:
   - Quantitative methods, Geographic Information Systems (GIS)
@@ -114,21 +121,24 @@ Dennis
 
 ## Course schedule
 
-```{r course-content, echo = FALSE}
+```{r}
+#| echo: false
 source("course_content.R")
 course_content
 ```
 
 ## Now
 
-```{r course-content-now, echo = FALSE}
+```{r}
+#| echo: false
 course_content |> 
   kableExtra::row_spec(1, background = "yellow")
 ```
 
+
 ## Why?
 
-A lot of (classic) theories inherently make use of space (e.g., Allport 1954^[Allport, Gordon W. 1954. The Nature of Prejudice. Cambridge, Massachusetts: Addison-Wesley Publishing Company.])
+A lot of (classic) theories inherently make use of space (e.g., Allport 1954)^[Allport, Gordon W. 1954. The Nature of Prejudice. Cambridge, Massachusetts: Addison-Wesley Publishing Company.]
 
 - It's where people interact
 - It's what people collectivly shape
@@ -145,7 +155,7 @@ Thus, there's a deep intersection or even embededness of space in social science
 ::: {.column width="50%"}
 Exploiting geographic information is not new.
 
-For example, Siegfried (1913^[Siegfried, André. 1913. Tableau Politique de La France de l’Ouest Sous La Troisième République. Paris: Collin.]) used soil composition information to explain election results in France.
+For example, Siegfried (1913)^[Siegfried, André. 1913. Tableau Politique de La France de l’Ouest Sous La Troisième République. Paris: Collin.] used soil composition information to explain election results in France.
 :::
 
 ::: {.column width="50%"}
@@ -155,12 +165,11 @@ For example, Siegfried (1913^[Siegfried, André. 1913. Tableau Politique de La F
 
 ## Remember the Chicago School?
 
-![](../img/park_etal.png){.r-stretch fig-align="center"}
+![](../img/park_etal.png){fig-align="center" width="50%"}
 
 
 ::: aside
 Park, Robert E., Ernest W. Burgess, and Roderick D. McKenzie. 1925. The City. Suggestions for Investigation of Human Behavior in the Urban Environment. Chicago and London: University of Chicago Press.
-
 :::
 
 
@@ -169,18 +178,23 @@ Park, Robert E., Ernest W. Burgess, and Roderick D. McKenzie. 1925. The City. Su
 So many studies still rely on these ideas but incorperate space directly, e.g.,
 
 ::::: columns
-::: {.column width="40%"}
-- Iyer, A., & Pryce, G. (2023). Theorising the causal impacts of social frontiers: The social and psychological implications of discontinuities in the geography of residential mix. Urban Studies, https://doi.org/10.1177/00420980231194834
-- Kent, J. (2022). Can urban fabric encourage tolerance? Evidence that the structure of cities influences attitudes toward migrants in Europe. Cities, 121, 103494. https://doi.org/10.1016/j.cities.2021.103494
-- Schmidt, K., Jacobsen, J., & Iglauer, T. (2023). Proximity to refugee accommodations does not affect locals’ attitudes toward refugees: Evidence from Germany. European Sociological Review, jcad028. https://doi.org/10.1093/esr/jcad028
-- Xu, A. Z. (2023). Segregation and the Spatial Externalities of Inequality: A Theory of Interdependence and Public Goods in Cities. American Political Science Review, 1–18. https://doi.org/10.1017/S0003055423000722
-- ...
-- Jünger, S., & Schaeffer, M. (2023). Ethnic Diversity and Social Integration—What are the Consequences of Ethnic Residential Boundaries and Halos for Social Integration in Germany? KZfSS Kölner Zeitschrift Für Soziologie Und Sozialpsychologie. https://doi.org/10.1007/s11577-023-00888-1
+::: {.column width="50%"}
+
+<ul style="font-size:.55em;">
+  <li>Iyer, A., & Pryce, G. (2023). Theorising the causal impacts of social frontiers: The social and psychological implications of discontinuities in the geography of residential mix. Urban Studies, https://doi.org/10.1177/00420980231194834</li>
+    <li>Kent, J. (2022). Can urban fabric encourage tolerance? Evidence that the structure of cities influences attitudes toward migrants in Europe. Cities, 121, 103494. https://doi.org/10.1016/j.cities.2021.103494</li>
+    <li>Schmidt, K., Jacobsen, J., & Iglauer, T. (2023). Proximity to refugee accommodations does not affect locals’ attitudes toward refugees: Evidence from Germany. European Sociological Review, jcad028. https://doi.org/10.1093/esr/jcad028</li>
+    <li>Xu, A. Z. (2023). Segregation and the Spatial Externalities of Inequality: A Theory of Interdependence and Public Goods in Cities. American Political Science Review, 1–18. https://doi.org/10.1017/S0003055423000722</li>
+    <li>...</li>
+    <li>**Jünger**, S., & Schaeffer, M. (2023). Ethnic Diversity and Social Integration—What are the Consequences of Ethnic Residential Boundaries and Halos for Social Integration in Germany? KZfSS Kölner Zeitschrift Für Soziologie Und Sozialpsychologie. https://doi.org/10.1007/s11577-023-00888-1</li>
+</ul>
 :::
 
-::: {.column width="60%"}
+::: {.column width="50%"}
 
-![](../img/xu2023.png){fig-align="right" width="50%"}
+![](../img/xu2023.png){fig-align="center" width="40%"}
+
+<p align = "right"><small>Xu, 2023</small></p>
 :::
 :::::
 
@@ -372,7 +386,7 @@ Most of the times it's enough to use so-called EPSG Codes ("European Petroleum S
 ::: {.column width="50%"}
 ![](../img/ImageEPSGlogo.gif){fig-align="center" width="60%"}
 
-<small>[Source](http://geotiff.maptools.org/proj_list/guid7.html)</small>
+<p align = "center"><small>[Source](http://geotiff.maptools.org/proj_list/guid7.html)</small></p>
 :::
 ::::
 
@@ -384,36 +398,32 @@ Let's learn about geospatial data as we learn about specific formats
 
 
 
-<small>[Source](https://dx.doi.org/10.13140/2.1.3030.1767)</small>
+<p align = "center"><small>[Source](https://dx.doi.org/10.13140/2.1.3030.1767)</small></p>
 
 ## Packages in this course I 
 
-We will use plenty of different packages during the course, but only a few are our main drivers (e.g., the `sf` package). Here's the list of packages:
+We will use plenty of different packages during the course, but only a few are our main drivers (e.g., the `sf` package). Here's the list of packages you at least need for the exercises:
 
 - [`dplyr`](https://cran.r-project.org/web/packages/dplyr/index.html)
 - [`ggplot2`](https://cran.r-project.org/web/packages/ggplot2/index.html)
-- **[`ggsn`](http://oswaldosantos.github.io/ggsn/)**
-- [`haven`](https://cran.r-project.org/web/packages/haven/index.html)
+- [`ggspatial`](https://cran.r-project.org/web/packages/ggspatial/index.html)
 - [`osmdata`](https://cran.r-project.org/web/packages/osmdata/index.html)
 - **[`OpenStreetMap`](https://cran.r-project.org/web/packages/OpenStreetMap/index.html)**^[If you use a Mac, you may need to install Java: https://www.java.com/de/download/]
 - [`sf`](https://cran.r-project.org/web/packages/sf/index.html)
 - [`spatialreg`](https://cran.r-project.org/web/packages/spatialreg/index.html)
+- [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html)
 
 ## Packages in this course II 
 
-- [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html)
 - [`sfdep`](https://cran.r-project.org/web/packages/sfdep/index.html)
 - [`spdep`](https://cran.r-project.org/web/packages/spdep/index.html)
+- [`tidyterra`](https://cran.r-project.org/web/packages/tidyterra/index.html)
 - [`terra`](https://cran.r-project.org/web/packages/terra/index.html)
 - **[`tidygeocoder`](https://cloud.r-project.org/web/packages/tidygeocoder/index.html)**
 - [`tmap`](https://cran.r-project.org/web/packages/tmap/index.html)
 - [`tmaptools`](https://cran.r-project.org/web/packages/tmaptools/index.html)
-- [`raster`](https://cran.r-project.org/web/packages/raster/index.html)
-- [`z11`](https://github.com/StefanJuenger/z11)
 
 
-## Exercise 1_1_1: Package Installation
+## Exercise 1: Package Installation
 
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/1_1_1_Package_Installation.html)
-
-[Solution](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/solutions/1_1_1_Package_Installation.html)
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/1_Package_Installation.html)
