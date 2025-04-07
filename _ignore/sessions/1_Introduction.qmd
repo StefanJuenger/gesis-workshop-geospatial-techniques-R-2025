@@ -87,18 +87,17 @@ We will show the use of packages we exploit in practice
 
 ::::: columns
 ::: {.column width="40%"}
-![](../img/dennis.png){fig-align="center" width="75%"}
+![](../img/Dennis.png){fig-align="center" width="75%"}
 :::
 
 ::: {.column width="60%"}
-- Postdoctoal Researcher in the team Survey Data Augmentation at the GESIS department Survey Data Curation
-- Ph.D. in social sciences, University of Cologne
+- Postdoctoral Researcher in the team Survey Data Augmentation at the GESIS department Survey Data Curation
+- Ph.D. in Political Economy, University of Cologne
 - Research interests:
   - Quantitative methods, Geographic Information Systems (GIS)
-  - Social inequalities
-  - Attitudes towards minorities
-  - Environmental attitudes
-  - Reproducible research
+  - Environmental attitudes and behavior
+  - Public policy
+  - Open source software
 :::
 :::::
 
@@ -175,7 +174,7 @@ Park, Robert E., Ernest W. Burgess, and Roderick D. McKenzie. 1925. The City. Su
 
 ## Today {.smaller}
 
-So many studies still rely on these ideas but incorperate space directly, e.g.,
+So many studies still rely on these ideas but incorporate space directly, e.g.,
 
 ::::: columns
 ::: {.column width="50%"}

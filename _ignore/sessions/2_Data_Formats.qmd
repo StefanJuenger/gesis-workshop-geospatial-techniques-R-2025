@@ -154,7 +154,7 @@ Why?
 ## Load a shapefile
 
 The first step is, of course, loading the data.
-We want to import the shapefile the administrative borders of the German states (*Bundesländer*) called `VG250_LAN.shp`.
+We want to import the shapefile for the administrative borders of the German states (*Bundesländer*) called `VG250_LAN.shp`.
 
 ```{r}
 #| include: false

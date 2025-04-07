@@ -157,13 +157,13 @@ sf::st_drop_geometry(echarging_sf) |>
 
 ## APIs
 
-Geospatial data tend to be quite big, there's a pressure to distribute data efficiently.Data dumps (on the internet) may not be helpful 
+Geospatial data tend to be quite big, there's a pressure to distribute data efficiently. Data dumps (on the internet) may not be helpful 
 
 - When resources are low 
 - Time's a factor
 - The data have a large geographic extent
 
-Instead, a *Programming Application Interfaces* (API) is often used.
+Instead, a *Programming Application Interface* (API) is often used.
 
 ## Data providers offering geospatial data APIs
 
@@ -617,7 +617,7 @@ plot(cologne)
 
 ## Using `sf` for subsetting
 
-If you have no information about *ids* but only about the geolocation, you can use `sf::st_touches()` (or `sf::st_touches()`, `sf::st_within()`, `sf::st_intersect()`, `sf::st_crosses()`, ...) to identify, for example, all districts which share a border with Cologne.
+If you have no information about *ids* but only about the geolocation, you can use `sf::st_touches()` (or `sf::st_within()`, `sf::st_intersect()`, `sf::st_crosses()`, ...) to identify, for example, all districts which share a border with Cologne.
 
 :::: columns
 ::: {.column width="50%"}
@@ -764,7 +764,7 @@ cropped_inhabitants_cologne <-
     deutz
   )
 
-tm_shape(inhabitants_cologne) +
+tm_shape(cropped_inhabitants_cologne) +
   tm_raster()
 ```
 :::
@@ -985,7 +985,7 @@ terra::extract(
 
 ## Raster aggregation
 
-We can use the same procedure to all aggregate a raster dataset to a vector polygon dataset. That's a very common use case. Let's reload our Cologne shapefile.
+We can use the same procedure to aggregate a raster dataset to a vector polygon dataset. That's a very common use case. Let's reload our Cologne shapefile.
 
 ```{r}
 #| eval: false
