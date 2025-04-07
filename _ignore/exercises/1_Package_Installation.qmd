@@ -1,5 +1,5 @@
 ---
-title: "Exercise 1_1: Package Installation"
+title: "Exercise 1: Package Installation"
 subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
 author: Stefan Jünger & Dennis Abel
 format: 
@@ -20,7 +20,7 @@ And here comes our very first exercise (which is not very spatial...):
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
 
-Please install all packages that are listed on slide 31 of the Introduction slides ("1_Introduction_GIS.html").
+Please install all packages that are listed at the end of the Introduction slides ("1_Introduction.html").
 :::
 
 ::: {.callout-caution collapse="true"}
