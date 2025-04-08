@@ -567,8 +567,10 @@ district_attributes <-
 ```
 
 
-```{r load-data-hidden, echo = F, warning = F, message = F}
+```{r}
 #| echo: false
+#| message: false
+#| warning: false
 district_attributes <-
   # load district shapefile
   sf::read_sf("../../data/VG250_KRS.shp") |> 
@@ -945,6 +947,6 @@ fake_survey_data_spatial |>
 ::::
 
 
-## Exercise 6_1: Spatial Joins
+## Exercise 6: Spatial Joins
 
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/6_1_Spatial_Joins.html)
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/6_Spatial_Joins.html)
