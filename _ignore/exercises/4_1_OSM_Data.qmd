@@ -17,41 +17,49 @@ callout-appearance: minimal
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
+
 Pick a city of the world to your liking and retrieve its bounding box. Then plot it: What do you see?
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 The function you may search for is part of the `osmdata` package. Have a look at the slides.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
+
 Please choose a couple of building types you are interested in and set them as key and value pairs. You can find a list of building types in the [Overpass API documentation](https://wiki.openstreetmap.org/wiki/Key:building). But don't forget to set the timeout query parameters using the `osmdata::opq()` function first.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 First, specify the bounding box like before; second, the query parameters; and third, the key and value pairs. Try using a pipe workflow, as it makes it easier.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 3
-Download the data using the `osmadata::osmdata_sf()` function and extract only the polygons. 
+
+Download the data using the `osmadata::osmdata_sf()` function and extract only the polygons.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 The downloaded data is a list. The polygons are a named list element that you can extract with its name `osm_polygons`, just like a variable in a data table.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 4
+
 Take some time to browse through the data. Depending on your chosen building type, you may find some interesting information. You can also plot the data you have just downloaded.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 You may consider converting the data into a tibble using `tibble::as_tibble()` and maybe a `sf::st_as_sf()` afterward for a nicer browsing experience.
 :::
 
@@ -59,6 +67,7 @@ You may consider converting the data into a tibble using `tibble::as_tibble()` a
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 1
+
 ```{r}
 boothbay <- osmdata::getbb("Boothbay")
 
@@ -70,6 +79,7 @@ plot(boothbay)
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 2
+
 ```{r}
 boothbay <-
   osmdata::getbb("Boothbay") |>  
@@ -83,12 +93,14 @@ boothbay <-
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 3
+
 ```{r}
 boothbay <-
   osmdata::getbb("Boothbay") |>  
   osmdata::opq(timeout = 25*100) |> 
   osmdata::add_osm_feature(
     key = "building", 
+    value = c("house", "residential", "apartments", "detached", "bungalow")
   ) |> 
   osmdata::osmdata_sf()
 
@@ -98,6 +110,7 @@ boothbay <- boothbay$osm_polygons
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 4
+
 ```{r}
 library(tmap)
 
