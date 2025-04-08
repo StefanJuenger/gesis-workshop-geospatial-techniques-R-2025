@@ -1167,7 +1167,7 @@ plot(polygon_raster)
 :::
 ::::
 
-## Analysis: creating a quick 'heatmap'
+## Analysis application: creating a quick 'heatmap'
 
 OpenStreetMap points data are nice for analyzing urban infrastructure. Let's draw a quick 'heatmap' using obersvation densities.
 
@@ -1216,6 +1216,8 @@ plot(echarging_sf_cologne_densities)
 ```
 :::
 ::::
+
+## Backup / For Home Use {.center style="text-align: center;"}
 
 ## Focal statistics / spatial filter
 
