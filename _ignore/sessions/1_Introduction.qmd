@@ -267,7 +267,7 @@ $\rightarrow$ **geo-coordinates** x, y (and z)
 
 In the folder called `./data`, you can find (most of) the data files prepped for all the exercises and slides. The following data are included:
 
-- Administrative borders of Germany (Prefix *VG250_*) are provided by the German [Federal Agency for Cartography and Geodesy](http://www.bkg.bund.de)(2018). Check out their [Open Data Portal](https://gdz.bkg.bund.de/index.php/default/open-data.html).
+- Administrative borders of Germany (Prefix *VG250_*) are provided by the German [Federal Agency for Cartography and Geodesy](http://www.bkg.bund.de) (2018). Check out their [Open Data Portal](https://gdz.bkg.bund.de/index.php/default/open-data.html).
 
 - The locations of e-car charging stations in Germany are retrieved from the [Bundesnetzagentur](https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/E-Mobilitaet/Ladesaeulenkarte/start.html). 
 
@@ -435,9 +435,9 @@ We will use plenty of different packages during the course, but only a few are o
 - [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html)
 - [`sfdep`](https://cran.r-project.org/web/packages/sfdep/index.html)
 - [`spdep`](https://cran.r-project.org/web/packages/spdep/index.html)
-- [`tidyterra`](https://cran.r-project.org/web/packages/tidyterra/index.html)
 - [`terra`](https://cran.r-project.org/web/packages/terra/index.html)
-- **[`tidygeocoder`](https://cloud.r-project.org/web/packages/tidygeocoder/index.html)**
+- [`tidygeocoder`](https://cloud.r-project.org/web/packages/tidygeocoder/index.html)
+- [`tidyterra`](https://cran.r-project.org/web/packages/tidyterra/index.html)
 - [`tmap`](https://cran.r-project.org/web/packages/tmap/index.html)
 - [`tmaptools`](https://cran.r-project.org/web/packages/tmaptools/index.html)
 

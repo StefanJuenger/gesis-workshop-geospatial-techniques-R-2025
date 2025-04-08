@@ -14,12 +14,13 @@ Materials for the GESIS workshop "Introduction to Geospatial Techniques for Soci
 
 ## Workshop Description
 In recent years, many researchers have renewed interest in the spatially integrated social sciences, following the call for a 'spatial turn' among plenty of its subdisciplines. However, to process, visualize, and analyze geospatial data, social scientists must first be trained in specialized tools called Geographic Information Systems (GIS). The good news is: While this may have been an unacquainted undertaking until recently, the familiar open-source statistical language R can now serve as a full-blown GIS for many research applications.
+
 This course will teach its participants how to exploit R to apply its geospatial techniques in a social science context. We will learn about the most common data formats, their characteristics, and their applications. Most importantly, the course will present available data sources and how to get data and process them for further analysis. These steps involve essential geospatial operations, such as cropping, aggregating, or linking data, and they are the first fundamental steps of modeling and assessing spatial interdependence. The course will be hands-on, so it also includes one of the most rewarding tasks of working with geospatial data: visualizing them through maps.
 
 ## What do you find here?
 This page comprises the official workshop repository with the most recent changes to our materials. You can find all the course data, slides, and exercises here. The section below links the slides and exercises that will open them directly in the browser as HTML files. They are also stored in the folders `./slices/` and `./exercises`. You can also find all the data in the folder `./data`. They comprise the following official (Open Data) sources:
 
-- Administrative borders of Germany (Prefix *VG250_*) are provided by the German [Federal Agency for Cartography and Geodesy](http://www.bkg.bund.de)(2018). Check out their [Open Data Portal](https://gdz.bkg.bund.de/index.php/default/open-data.html).
+- Administrative borders of Germany (Prefix *VG250_*) are provided by the German [Federal Agency for Cartography and Geodesy](http://www.bkg.bund.de) (2018). Check out their [Open Data Portal](https://gdz.bkg.bund.de/index.php/default/open-data.html).
 
 - The locations of e-car charging stations in Germany are retrieved from the [Bundesnetzagentur](https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/E-Mobilitaet/Ladesaeulenkarte/start.html). 
 

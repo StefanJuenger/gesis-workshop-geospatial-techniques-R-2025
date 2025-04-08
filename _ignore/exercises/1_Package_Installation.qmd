@@ -51,9 +51,7 @@ library(easypackages)
 easypackages::packages(
   "dplyr",
   "ggplot2",
-  "oswaldosantos/ggsn",
-  "gifski",
-  "haven",
+  "ggspatial",
   "osmdata",
   "OpenStreetMap",
   "sf",
@@ -61,13 +59,11 @@ easypackages::packages(
   "spatstat",
   "sfdep",
   "spdep",
-  "stars",
   "terra",
   "tidygeocoder",
+  "tidyterra",
   "tmap",
-  "tmaptools",
-  "raster",
-  "StefanJuenger/z11"
+  "tmaptools"
 ) 
 ```
 :::
