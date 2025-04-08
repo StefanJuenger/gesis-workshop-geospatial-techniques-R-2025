@@ -113,7 +113,7 @@ immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
 # load all layers
 immigrants_cologne <- terra::rast("./data/immigrants_cologne.tif")
 
-inhabitants_cologne <-  terra::rast("./data/inhabitants_cologne.tif")
+inhabitants_cologne <- terra::rast("./data/inhabitants_cologne.tif")
 
 # create proportation layer
 immigrants_proportion <- immigrants_cologne / inhabitants_cologne
@@ -132,7 +132,7 @@ terra::plot(immigrants_proportion_scaled)
 ```{r}
 #| echo: false
 # load all layers
-immigrants_cologne <-  terra::rast("../../data/immigrants_cologne.tif")
+immigrants_cologne <- terra::rast("../../data/immigrants_cologne.tif")
 
 inhabitants_cologne <- terra::rast("../../data/inhabitants_cologne.tif")
 
