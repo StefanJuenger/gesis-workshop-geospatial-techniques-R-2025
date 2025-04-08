@@ -101,6 +101,25 @@ We will show the use of packages we exploit in practice
 :::
 :::::
 
+## About us (Amelie)
+
+::::: columns
+::: {.column width="40%"}
+![](../img/avatar_amelie.jpg){fig-align="center" width="75%"}
+:::
+
+::: {.column width="60%"}
+- Internship in the Survey Data Augmentation at the GESIS department Survey Data Curation
+- Undergraduate in Geography, University of Bonn 
+- Study Interests: 
+  - Geographic Information Systems (GIS)
+  - Intersectionality of geography and social sciences (e.g. Loss and Damage)
+  - Biogeography
+  - Climatology
+  - Dendrochronology and -ecology
+:::
+:::::
+
 ## About you
 
 ::::: columns
@@ -164,7 +183,7 @@ For example, Siegfried (1913)^[Siegfried, André. 1913. Tableau Politique de La 
 
 ## Remember the Chicago School?
 
-![](../img/park_etal.png){fig-align="center" width="50%"}
+![](../img/park_etal.png){fig-align="center" width="35%"}
 
 
 ::: aside
@@ -401,7 +420,7 @@ Let's learn about geospatial data as we learn about specific formats
 
 ## Packages in this course I 
 
-We will use plenty of different packages during the course, but only a few are our main drivers (e.g., the `sf` package). Here's the list of packages you at least need for the exercises:
+We will use plenty of different packages during the course, but only a few are our main drivers (e.g., the `sf` package). Here's the list of packages you may need for the exercises:
 
 - [`dplyr`](https://cran.r-project.org/web/packages/dplyr/index.html)
 - [`ggplot2`](https://cran.r-project.org/web/packages/ggplot2/index.html)
@@ -410,10 +429,10 @@ We will use plenty of different packages during the course, but only a few are o
 - **[`OpenStreetMap`](https://cran.r-project.org/web/packages/OpenStreetMap/index.html)**^[If you use a Mac, you may need to install Java: https://www.java.com/de/download/]
 - [`sf`](https://cran.r-project.org/web/packages/sf/index.html)
 - [`spatialreg`](https://cran.r-project.org/web/packages/spatialreg/index.html)
-- [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html)
 
 ## Packages in this course II 
 
+- [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html)
 - [`sfdep`](https://cran.r-project.org/web/packages/sfdep/index.html)
 - [`spdep`](https://cran.r-project.org/web/packages/spdep/index.html)
 - [`tidyterra`](https://cran.r-project.org/web/packages/tidyterra/index.html)
