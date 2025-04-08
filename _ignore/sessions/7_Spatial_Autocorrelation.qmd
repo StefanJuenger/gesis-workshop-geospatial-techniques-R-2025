@@ -41,7 +41,7 @@ course_content |>
 
 We've done some wrangling, mapping, and linking of geospatial data (with georeferenced survey data)
 
-We've seen that geospatial data are relevant to provide context (as social scientists, we know that space is important) and they are nice to look at--we can tell a story!
+We've seen that geospatial data are relevant to provide context (as social scientists, we know that space is important), and they are nice to look at--we can tell a story!
 
 **However, geospatial data can be interesting on their own for social science studies!**
 
@@ -49,7 +49,7 @@ We've seen that geospatial data are relevant to provide context (as social scien
 
 > [E]verything is related to everything else, but near things are more related than distant things (Tobler 1970, p. 236)^[Tobler, W. R. (1970). A Computer Movie Simulating Urban Growth in the Detroit Region. Economic Geography, 46, 234–240. https://doi.org/10.2307/143141]
 
-This means nearby geographical regions, institutions, or people are more similar to each other or do have a stronger influence on each other.
+This means nearby geographical regions, institutions, or people are more similar or have a stronger influence on each other.
 
 **What we get is an interdependent system.**
 
@@ -57,8 +57,8 @@ This means nearby geographical regions, institutions, or people are more similar
 
 Tobler's law is the fundamental principle of doing spatial analysis. We want to know
 
-1. if observations in our data are spatially interdependent
-2. and how this interdependence can be explained (= data generation process)
+1. If observations in our data are spatially interdependent
+2. And how this interdependence can be explained (= data generation process)
 
 ## Developing a model of connectiveness: the chess board
 
@@ -99,7 +99,7 @@ Tobler's law is the fundamental principle of doing spatial analysis. We want to 
 
 ## Let's do it hands-on: Our 'research' question
 
-Say, we are interested in AfD voting outcomes in relation to ethnic compositions of neighborhoods
+Say we are interested in AfD voting outcomes in relation to ethnic compositions of neighborhoods.
 
 - Combination of far-right voting research with Allport's classic contact theory
 - We are just doing it in the Urban context of Cologne (again)
@@ -235,11 +235,11 @@ ggplot() +
 
 ## Linking: Let's get geographical
 
-As the voting (vector) data is different to the Census raster data we cannot use simple ID matching like before
+As the voting (vector) data differs from the Census raster data, we cannot use simple ID matching like before.
 
 - We have to rely on spatial linking techniques
 - We could use `terra::extract()`
-  - But as a default it only captures raster cells as a whole and not their spatial fraction
+  - But as a default, it only captures raster cells as a whole and not their spatial fraction
   - Which is honestly okay for most applications
   - But why not try something else?
 
@@ -367,7 +367,7 @@ queens_neighborhoods |>
 
 ## Can we now start?
 
-Unfortunately, we are yet done with creating the links between neighborhoods. What we receive is, in principle, a huge matrix with connected observations.
+Unfortunately, we are not yet done with creating the links between neighborhoods. What we receive is, in principle, a huge matrix with connected observations.
 
 ```{r}
 #| echo: false
@@ -404,7 +404,7 @@ rowSums(spdep::nb2mat(queens_neighborhoods, style = "W")[1:5, 1:5]) |> as.vector
 
 ## Row-normalization
 
-One of the disputed but at the same time standard procedures is row-normalization. It divides all individual weights (=connections between spatial units) $w_{ij}$ by the row-wise sum of of all other weights:
+One of the disputed but, at the same time, standard procedures is row-normalization. It divides all individual weights (=connections between spatial units) $w_{ij}$ by the row-wise sum of of all other weights:
 
 $$W = \sum_j\frac{w_{ij}}{\sum_jw_{ij}}$$
 
@@ -424,7 +424,7 @@ summary(queens_W)
 
 $$I=\frac{N}{\sum_{i=1}^N\sum_{j=1}^Nw_{ij}}\frac{\sum_{i=1}^{N}\sum_{j=1}^Nw_{ij}(x_i-\bar{x})(x_j-\bar{x})}{\sum_{i=1}^N(x_i-\bar{x})^2}$$
 
-Most and foremost, Moran's I makes use of the previously created weights between all  spatial units pairs $w_{ij}$. It weights deviations from an overall mean value of connected pairs according to the strength of the modeled spatial relations. Moran's I can be interpreted as some sort of a correlation coefficient (-1 = perfect negative spatial autocorrelation; +1 = perfect positive spatial autocorrelation).
+Most and foremost, Moran's I use the previously created weights between all spatial unit pairs $w_{ij}$. It weights deviations from an overall mean value of connected pairs according to the strength of the modeled spatial relations. Moran's I can be interpreted as a correlation coefficient (-1 = perfect negative spatial autocorrelation; +1 = perfect positive spatial autocorrelation).
 
 ## Moran's I in `spdep`
 
@@ -491,7 +491,7 @@ election_results %$%
 
 ## Measures of local spatial autocorrelation: LISA clusters
 
-The reason why we show you the `sfdep` package is that it provides nice functions to calculate *local* measures of spatial autocorrelation. One popular choice are the estimation of Local Indicators of Spatial Autocorrelation (i.e., LISA clusters). In the most straightforward way they can be interpreted as case-specific indicators of spatial autocorrelation:
+We show you the `sfdep` package because it provides nice functions to calculate *local* measures of spatial autocorrelation. One popular choice is the estimation of Local Indicators of Spatial Autocorrelation (i.e., LISA clusters). Most straightforwardly, they can be interpreted as case-specific indicators of spatial autocorrelation:
 
 $$I_i=\frac{x_i-\bar{x}}{\frac{\sum_{i-1}^N(x_i-\bar{x})^2}{N}}\sum_{j=1}^Nw_{ij}(x_j-\bar{x})$$
 
@@ -594,8 +594,8 @@ ggplot() +
 
 ## Wrap up
 
-You now know how to model connectedness of spatial units, investigate spatial autocorrelation globally and locally, and map it. 
+You now know how to model the connectedness of spatial units, investigate spatial autocorrelation globally and locally, and map it. 
   
-There's way more, particularly when it comes to spatial weights (see exercise), clustering techniques (e.g., Hot Spot Analysis), or autocorrelation with more than one or two variables.
+There's way more, particularly regarding spatial weights (see exercise), clustering techniques (e.g., Hot Spot Analysis), or autocorrelation with more than one or two variables.
 
-**Nevertheless, mow we know our data are spatially autocorrelated. Let's try to find out why this is the case via some spatial econometrics**
+**Nevertheless, now we know our data are spatially autocorrelated. Let's try to find out why this is the case via some spatial econometrics**

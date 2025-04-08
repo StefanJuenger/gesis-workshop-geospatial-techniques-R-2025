@@ -37,13 +37,13 @@ course_content |>
 
 ## Why care about data types and formats?
 
-There are differences in the way spatial information is stored, processed, and visually represented.
+There are differences in how spatial information is stored, processed, and visually represented.
 
 - Different commands for data import and manipulation
 - Spatial linking techniques and analyses partly determined by data format
 - Visualization of data can vary
 
-So: Always know what kind of data you are dealing with!
+So, always know what kind of data you are dealing with!
 
 ## Vector and raster data
 
@@ -75,7 +75,7 @@ The surface of the earth is represented by simple geometries and attributes.
 
 Each object is defined by longitude (x) and latitude (y) values.
 
-Could also include z coordinates...
+It could also include z coordinates...
 :::
 ::::
 
@@ -88,7 +88,7 @@ Every real-world feature is one of three types of geometry:
 
 - Points: discrete location (e.g., a tree)
 - Lines: linear feature (e.g., a river)
-- Polygons: enclosed area  (e.g, a city, country, administrative boundaries)
+- Polygons: enclosed areas (e.g., a city, country, administrative boundaries)
 :::
 
 ::: {.column width="50%"}
@@ -103,7 +103,7 @@ Every real-world feature is one of three types of geometry:
 
 Only geometries means that we do not have any other information.
 
-We need to assign attributes to each geometry to hold additional information $\rightarrow$ data tables called attribute tables
+We must assign attributes to each geometry to hold additional information $\rightarrow$ data tables called attribute tables.
 
 - Each row represents a geometric object, which we can also call observation, feature, or case
 - Each column holds an attribute or, in 'our' language, a variable
@@ -122,11 +122,11 @@ We need to assign attributes to each geometry to hold additional information $\r
 
 ## Welcome to the proprietary reality: shapefiles
 
-Both the geometric information and attribute table can be saved within one file. Rather often, *ESRI Shapefiles* are used to store vector data. Shapefiles consist of at least three mandatory files with the extensions:
+Both the geometric information and attribute table can be saved within one file. Rather often, *ESRI Shapefiles* are used to store vector data. Shapefiles consist of at least three mandatory files with the following extensions:
 
-- `.shp` : shape format
-- `.shx` : shape index format
-- `.dbf` : attribute format
+- `.shp`: shape format
+- `.shx`: shape index format
+- `.dbf`: attribute format
 - (`.prj`: CRS/Projection)
 
 You don't have to remember what they stand for, but you can only properly work with the data if none of those files is missing.
@@ -135,12 +135,12 @@ You don't have to remember what they stand for, but you can only properly work w
 
 :::: columns
 ::: {.column width="50%"}
-Several packages are out there to wrangle and visualize spatial and, especially, vector data within `R`. We will use a package called `sf` ("simple features").
+Several packages are out there to wrangle and visualize spatial and, especially, vector data within `R`. We will use the `sf` package ("simple features").
 
 <br>
 Why? 
 
-`simple features` refers to a formal standard representing spatial geometries and supports interfaces to other programming languages and GIS systems.
+`simple features` refers to a formal standard representing spatial geometries and supports interfaces to other programming languages and GIS systems (ISO 19125-1).
 :::
 
 ::: {.column width="50%"}
@@ -153,8 +153,7 @@ Why?
 
 ## Load a shapefile
 
-The first step is, of course, loading the data.
-We want to import the shapefile for the administrative borders of the German states (*Bundesländer*) called `VG250_LAN.shp`.
+The first step is, of course, loading the data. We want to import the shapefile for the administrative borders of the German states (*Bundesländer*) called `VG250_LAN.shp`.
 
 ```{r}
 #| include: false
@@ -215,7 +214,7 @@ ncol(german_states)
 
 ## Inspect your data: classics
 
-You can see that there are no huge differences between the shapefile we just imported and a regular data table.
+There are no huge differences between the shapefile we just imported and a regular data table.
 
 ```{r}
 # head of data table
@@ -234,7 +233,7 @@ sf::st_geometry(german_states)
 
 ## Inspect your data: spatial features
 
-Each polygon is defined by several points that are connected to build an enclosed area. Several polygons in one data frame have the `sf` type `multipolygons`. Just as Germany consists of several states, the polygon Germany consists of several smaller polygons.
+Each polygon is defined by several connected points to build an enclosed area. Several polygons in one data frame have the `sf` type `multipolygons`. Just as Germany consists of several states, the polygon Germany consists of several smaller polygons.
 
 ```{r}
 # extract the simple features column and further inspecting 
@@ -245,7 +244,7 @@ attr(german_states, "sf_column") |>
 
 ## Inspect your data: spatial features
 
-Remember: The Coordinate Reference System is very important. A crucial step is to check the CRS of your geospatial data.
+Remember: The Coordinate Reference System is critical. A crucial step is to check the CRS of your geospatial data.
 
 ```{r}
 # coordinate reference system
@@ -283,7 +282,7 @@ Benefits:
 
 - Hold information on (most of the time) evenly shaped grid cells
 - Basically, a simple data table
-- each cell represents one observation
+- Each cell represents one observation
 
 ![](../img/table_to_raster.png){.r-stretch fig-align="center"}
 
@@ -331,7 +330,7 @@ terra::plot(raster_layer)
 - ...
 - Sometimes, raster data come even in a text format, such as `CSV`
 
-**In this course, we will only use `tiff` files as they are pretty common. Just be aware that there a different formats out there.**
+**In this course, we will only use `tiff` files as they are pretty common. Just be aware that there are different formats out there.**
 
 
 ## Implementations in `R`
@@ -399,7 +398,7 @@ Working with raster data is straightforward
 - quite speedy
 - yet not as comfortable as working with `sf` objects
 
-For example, to calculate the mean we would use:
+For example, to calculate the mean, we would use the following:
 
 ```{r}
 terra::global(immigrants_cologne, fun = "mean", na.rm = TRUE)

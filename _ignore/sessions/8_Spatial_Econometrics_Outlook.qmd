@@ -42,13 +42,13 @@ course_content |>
 
 Econometrics could be reduced to using statistics to model (complex) theories ... 
 
-- it is interesting for causal inference and thinking
-- as default we think about regression analysis
+- It is interesting for causal inference and thinking
+- As default, we think about regression analysis
   
-Therefore, spatial econometrics combine spatial analysis and econometrics
+Therefore, spatial econometrics combines spatial analysis and econometrics.
 
-- study of why spatial relationships (i.e., autocorrelation) exist
-- how spatial autocorrelation affects our outcome of interest
+- Study of why spatial relationships (i.e., autocorrelation) exist
+- How spatial autocorrelation affects our outcome of interest
 
 **What is the data generation process?**
 
@@ -56,7 +56,7 @@ Therefore, spatial econometrics combine spatial analysis and econometrics
 
 ## Spatial diffusion vs. spatial spillover
 
-There are at least two common mechanisms we are interested in spatial econometrics
+There are at least two common mechanisms in which we are interested in spatial econometrics.
 
 :::: columns
 ::: {.column width="50%"}
@@ -67,8 +67,8 @@ There are at least two common mechanisms we are interested in spatial econometri
 - that's a feedback effect 
   - endogenous by design!
 - Examples:
-  - pandemic and policy measures to contain the pandemic
-  - diffusion of violence in a war
+  - Pandemic and policy measures to contain the pandemic
+  - Diffusion of violence in a war
 :::
 
 ::: {.column width="50%"}
@@ -76,7 +76,7 @@ There are at least two common mechanisms we are interested in spatial econometri
 - $x_i$ affects $y_j$ through $w_{ij}$
 - $x_j$ affects $y_i$ through $w_{ij}$
 - Examples:
-  - spillover of economic strength and trade 
+  - Spillover of economic strength and trade 
 :::
 ::::
 
@@ -84,9 +84,9 @@ There are at least two common mechanisms we are interested in spatial econometri
 
 :::: columns
 ::: {.column width="50%"}
-We have to think about theories and mechanisms and how they translate into spatial effects and the data generation process.
+We must think about theories and mechanisms and how they translate into spatial effects and the data generation process.
 
-That said, there are tests to check for the specific data generation process at hand, but they are not recommended to be used naively.
+That said, there are tests to check for the specific data generation process, but they are not recommended to be used naively.
 :::
 
 ::: {.column width="50%"}
@@ -98,10 +98,10 @@ That said, there are tests to check for the specific data generation process at 
 
 Space can be important in our analysis in two ways. 
 
-- it's meaningful in our theory and we thus interpret it accordingly after estimation
-- it can distort our empirical estimates, producing bias, inconsistency, and inefficiency
+- It's meaningful in our theory, and we thus interpret it accordingly after estimation
+- It can distort our empirical estimates, producing bias, inconsistency, and inefficiency
 
-**We can address both of these different perspectives in our analysis with spatial econometric methods.**
+**We can address these different perspectives in our analysis with spatial econometric methods.**
 
 ## Formulas... models, models, models
 
@@ -153,7 +153,7 @@ $$u = \lambda Wu + \epsilon$$
 
 ## Intermediate summary
 
-There are a lot of models you could estimate to *explain* spatial autocorrelation. And there's a vast body of literature on what's the best choice for which application. 
+There are a lot of models you could estimate to *explain* spatial autocorrelation. And there's a vast body of literature on the best choice for which application. 
 
 We'd explicitly like to recommend the work of [Tobias Rüttenauer](https://ruettenauer.github.io/publication/) for us social scientists. [Here](https://ruettenauer.github.io/SICSS-Spatial/index.html) are some really nice workshop materials.
 
@@ -162,13 +162,13 @@ We'd explicitly like to recommend the work of [Tobias Rüttenauer](https://ruett
 
 ## 'Research' question and data
 
-We will use the same example as in the previous session. But this time, we will actually test if one of our spatial regression models helps investigating the data generation process any further. We may ask:
+We will use the same example as in the previous session. But this time, we will test if one of our spatial regression models helps further investigate the data generation process. We may ask:
 
-1. Do immigrant shares have an effect on AfD voting shares within voting districts?
-2. Do immigrant shares have an effect on AfD voting shares between neighborhoods? (=spillover)
-3. Do AfD voting shares have an effect on AfD voting shares between neighborhoods? (=diffusion)
+1. Do immigrant shares affect AfD voting shares within voting districts?
+2. Do immigrant shares affect AfD voting shares between neighborhoods? (=spillover)
+3. Do AfD voting shares affect AfD voting shares between neighborhoods? (=diffusion)
 
-It might also be a good idea to control for inhabitant numbers within the voting districts.
+Controlling inhabitant numbers within the voting districts might also be a good idea.
 
 ```{r}
 #| include: false
@@ -224,7 +224,7 @@ summary(linear_regression)
 
 ## Now we need a spatial weight
 
-To estimate a spatial regression we, once again, have to construct a spatial weight as in the analysis of spatial autocorrelation. In fact, we'll use the same approach as before.
+Once again, we have to construct a spatial weight as in the analysis of spatial autocorrelation to estimate a spatial regression. In fact, we'll use the same approach as before.
 
 ```{r}
 queen_neighborhoods <- spdep::poly2nb(election_results, queen = TRUE)
@@ -282,13 +282,13 @@ Let's stick to our theory, shall we?
 
 ## Of higher importance: interpretation
 
-Unfortunately, in case of a Spatial Lag Y Model the spatial parameter $\rho$ only tells us that the effect is (statistically) significant -- or not. 
+Unfortunately, in a Spatial Lag Y Model, the spatial parameter $\rho$ only tells us whether the effect is (statistically) significant. 
 
-- remember: these models are endegenous by design
-  - we have effects of $y_j$ on $y_i$ and vice versa
-  - what a mess
+- Remember: these models are endogenous by design
+  - We have effects of $y_j$ on $y_i$ and vice versa
+  - What a mess
   
-Luckily, there's a method to decompose the spatial effects into direct, indirect and total effects: **estimating impacts**
+Luckily, there's a method to decompose the spatial effects into direct, indirect, and total effects: **estimating impacts**
 
 ## Impact estimation in `R`
 
@@ -343,19 +343,19 @@ course_content
 
 :::: columns
 ::: {.column width="50%"}
-Other map types such as
+Other map types, such as
 
-- cartograms
-- hexagon maps
+- Cartograms
+- Hexagon maps
 - (more)animated maps
-- network graphs
+- Network graphs
 
 
 GIS techniques, such as
 
-- geocoding
-- routing
-- cluster analysis
+- Geocoding
+- Routing
+- Cluster analysis
 
 
 More Advanced Spatial(-temporal) Modeling 
@@ -373,9 +373,9 @@ More data sources...
 
 Some more information:
 
-- geospatial data are interdisciplinary
-- amount of data feels unlimited
-- data providers and data portals are often specific in the area and/or the information they cover
+- Geospatial data are interdisciplinary
+- Amount of data feels unlimited
+- Data providers and data portals are often specific in the area and/or the information they cover
 
 Some random examples: 
 

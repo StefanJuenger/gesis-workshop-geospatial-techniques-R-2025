@@ -51,7 +51,7 @@ Data with a direct spatial reference $\rightarrow$ **geo-coordinates**
 
 ## Georeferenced survey data
 
-Survey data enriched with geo-coordinates (or other direct spatial references)
+Survey data enriched with geo-coordinates (or other direct spatial references).
 
 ![](../img/geo_surveys.png){.r-stretch fig-align="center"}
 
@@ -77,14 +77,13 @@ From the addresses to analyses with georeferenced survey data, several steps and
 
 ## Data protection
 
-That‘s one of the biggest issues
+That‘s one of the biggest issues.
 
 - Explicit spatial references increase the risk of re-identifying anonymized survey respondents
 - Can occur during the processing of data but also during the analysis
 
 
 **Affects all phases of research and data management!**
-
 
 ## Data availability
 
@@ -114,7 +113,7 @@ https://datasetsearch.research.google.com/
 
 ## Distribution & re-identification risk
 
-Even without (in)direct spatial references, data may still be sensitive
+Even without (in)direct spatial references, data may still be sensitive.
 
 - Geospatial attributes add new information to existing data
 - Maybe part of general data privacy checks, but we may not distribute these data as is
@@ -137,7 +136,7 @@ Safe Rooms / Secure Data Centers
 
 ::::
 ::: {.column width="50%"}
-Storing personal information such as addresses in the same place as actual survey attributes is not allowed in Germany
+In Germany, storing personal information such as addresses in the same place as actual survey attributes is usually not allowed.
 
 - Projects keep them in separate locations
 - Can only be matched with a correspondence table
@@ -155,15 +154,15 @@ Storing personal information such as addresses in the same place as actual surve
 
 Geocoding is the conversion of indirect spatial references (e.g., addresses) into direct spatial references (e.g., coordinates)
 
-However, conducting this procedure is a bit tricky (not only in R). Many services are either
+However, conducting this procedure is tricky (not only in R). Many services are either
 
-- expensive (at least they cost money or have other restrictions)
-- probably not data protection friendly (Hey Google)
-- or both
+- Expensive (at least they cost money or have other restrictions)
+- Probably not data protection-friendly (Hey Google)
+- Or both
 
 ## OSM Is Your Friend
 
-We can use the Nominatim API from OSM for geocoding of at least a couple of addresses
+We can use the Nominatim API from OSM to geocode at least a few addresses.
 
 ```{r}
 library(tibble)
@@ -271,11 +270,10 @@ We rely on a service offered by the Federal Agency of Cartography and Geodesy (B
 
 ::::
 ::: {.column width="50%"}
-The geocoding tool automatically retrieves point coordinates, administrative unit keys, and grid cell IDs.
-Spatial joins based on coordinates for other units:
+The geocoding tool automatically retrieves point coordinates, administrative unit keys, and grid cell IDs. Spatial joins based on coordinates for other units:
 
-- constituencies
-- administrative units across time (e.g., harmonized territorial status)
+- Constituencies
+- Administrative units across time (e.g., harmonized territorial status)
 :::
 
 ::: {.column width="50%"}
@@ -288,7 +286,7 @@ Spatial joins based on coordinates for other units:
 
 ## Data Linking
 
-Linking via common identifiers is most commonly used but comes with its own challenges (e.g., territorial status and land reforms? Comparable units? Heterogeneity within units?).
+Linking via common identifiers is most commonly used but comes with challenges (e.g., territorial status and land reforms? Comparable units? Heterogeneity within units?).
 
 ![](../img/data_linking.png){.r-stretch fig-align="center"}
 
@@ -409,9 +407,9 @@ tm_shape(german_states) +
 
 :::: columns
 ::: {.column width="50%"}
-Say we're interested in the impact of neighbourhood characteristics (e.g. mobility infrastructure) on individual-level attitudes towards energy transition.
+Say we're interested in the impact of neighborhood characteristics (e.g., mobility infrastructure) on individual-level attitudes towards energy transition.
 
-We plan to conduct a survey representative for the population of Germany.
+We plan to conduct a survey which is representative of the population of Germany.
 :::
 
 ::: {.column width="50%"}
@@ -426,7 +424,7 @@ We plan to conduct a survey representative for the population of Germany.
 
 :::: columns
 ::: {.column width="50%"}
-We have added a synthetic dataset of 2,000 geocoordinates in the `./data/` folder (aggregated to 1 sq km centroids). Originally, it is based on the sample of the georeferenced GESIS Panel.
+We have added a synthetic dataset of 2,000 geocoordinates in the `./data/` folder (aggregated to 1 sq km centroids). Initially, it was based on a sample of the georeferenced GESIS Panel.
 
 
 ```{r}
@@ -485,7 +483,7 @@ correspondence_table
 
 ## Conduct the survey
 
-We ask respondents for some standard sociodemographics. But we also include an item from the [GLES Panel](https://doi.org/10.4232/1.14114) on energy transformation: "From 2030, no more new cars with petrol or diesel engines are to be registered in Germany. How much do you agree?" (`entrans`). Since we cannot share the actual data, we created fake data using the [`faux` package](https://cran.r-project.org/web/packages/faux/index.html).
+We 'ask' respondents for some standard sociodemographics. But we also include an item from the [GLES Panel](https://doi.org/10.4232/1.14114) on energy transformation: "From 2030, no more new cars with petrol or diesel engines are to be registered in Germany. How much do you agree?" (`entrans`). Since we cannot share the actual data, we created fake data using the [`faux` package](https://cran.r-project.org/web/packages/faux/index.html).
 
 ```{r}
 #| include: false
@@ -544,11 +542,11 @@ fake_survey_data <-
 
 *Access to charging infrastructure*
 
-> Better access to charging infrastructure,  higher support for energy transformation.
+> Better access to charging infrastructure means higher support for energy transformation.
 
 *Rural-urban divide*
 
-> Higher population density, higher support for energy transformation.
+> Higher population density means higher support for energy transformation.
 
 ## District-level data
 
@@ -593,7 +591,7 @@ district_attributes <-
 
 ## Access to charging infrastructure
 
-Luckily, we've done something similar already yesterdays!
+Luckily, we did something similar yesterday!
 
 ```{r}
 #| eval: false
@@ -789,7 +787,7 @@ head(district_linked_df, 5)
 
 ## Too boring? Let's scale it down!
 
-We have our nice fake coordinates, and we know that we also have variations in some districts (e.g., Cologne) concerning e-car mobility. So, let's try to operationalize the variables on a smaller level of aggregation.
+We have our nice fake coordinates and know we also have variations in some districts (e.g., Cologne) concerning e-car mobility. Let's try to operationalize the variables on a smaller level of aggregation.
 
 *Access to charging infrastructure*
 > Charging stations in a 5000m buffer
@@ -890,7 +888,7 @@ coordinate_linked_df <-
 
 ## Join with Survey
 
-We hope you're not tired of joining data tables. Since we care a tiny bit more about data protection than others, we have yet another joining task left: joining the information we received using our (protected) fake coordinates to the actual survey data via the correspondence table.
+We hope you're not tired of joining data tables. Since we care a bit more about data protection, we have yet another joining task: to join the information we received using our (protected) fake coordinates to the actual survey data via the correspondence table.
 
 ```{r}
 # last joins for now

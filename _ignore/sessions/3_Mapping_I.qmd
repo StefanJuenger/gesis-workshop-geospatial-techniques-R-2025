@@ -43,10 +43,10 @@ course_content |>
 
 ## Fun with maps
 
-`plot()` does not allow us to manipulate the maps in an easy. But we already have the two most essential ingredients to create a nice map:
+`plot()` does not allow us to manipulate the maps easily. But we already have the two most essential ingredients to create a nice map:
 
 1. Vector data stored in the `./data` folder
-2. Some (hopefully) interesting attributes linked with the geometries.
+2. Some (hopefully) interesting attributes linked with the geometries
 
 ```{r}
 #| echo: false
@@ -110,10 +110,10 @@ inhabitants_cologne <- terra::rast("./data/inhabitants_cologne.tif")
 ::: {.column width="40%"}
 **Good Mapping**
 
-- reduction to most important information
-- legends, scales, descriptions
-- audience oriented
-- adjusted for color vision deficiencies
+- Reduction to most important information
+- Legends, scales, descriptions
+- Audience oriented
+- Adjusted for color vision deficiencies
 :::
 
 ::: {.column width="40%"}
@@ -140,8 +140,8 @@ inhabitants_cologne <- terra::rast("./data/inhabitants_cologne.tif")
 
 **The fast but nice map.**
 
-- fast exploration of spatial data by visualizing the geometries and attributes
-- might not be publication-ready yet, but they are more rewarding than just plotting information.
+- Fast exploration of spatial data by visualizing the geometries and attributes
+- Might not be publication-ready yet, but they are more rewarding than just plotting information
 :::
 ::::
 
@@ -199,8 +199,8 @@ tm_shape(attributes_cologne) +
 ::: {.column width="50%"}
 There is not much to consider when using `tmap` but two essential requirements:
 
-1. Define your spatial object.
-2. Choose a building block to determine how to display information.
+1. Define your spatial object
+2. Choose a building block to determine how to display information
 :::
 
 ::: {.column width="50%"}
@@ -325,7 +325,7 @@ tm_shape(attributes_cologne) +
 
 ## Add some information
 
-After we took care of our geometric types, we want to add some information to our data. The inner construction of each building block of `tm_elements` is the same.
+After we took care of our geometric types, we may want to add some information to our data. The inner construction of each building block of `tm_elements` is the same.
 
 1. Define the variable of interest first by stating the column name. 
 2. Add a name for the legend title and color palette, adjust the legend and scales ...
@@ -594,8 +594,7 @@ colorBlindness::cvdPlot(tmp)
 
 ## Animation
 
-`tm_animate()` allows you to create animated maps and visualize changes in spatial data, e.g. over time or attributes.
-You can customize the animation's duration, frame rate, timeline sliders, and transition effects.
+`tm_animate()` allows you to create animated maps and visualize changes in spatial data, e.g., over time or attributes. You can customize the animation's duration, frame rate, timeline sliders, and transition effects.
 
 :::: columns
 ::: {.column width="50%"}
@@ -635,7 +634,7 @@ tmap_animation(
 `tmap` offers support for various output formats, including:
 
 - Static Images: PNG, JPEG, TIFF, etc.
-- Interactive Web Maps: HTML, JavaScript (using packages like leaflet).
+- Interactive Web Maps: HTML and JavaScript (using packages like `leaflet`).
 - Animated Maps: GIF, MP4, etc.
 
 You can also control width and height, dpi, etc.
@@ -660,8 +659,8 @@ tmap_save(ecar_map, filename = "ecar_map.html" )
 **Maps can shape narratives**
 
 - Decisions on which projection you use (remember the `true size` projector?), 
-- the segment of the world you choose, 
-- and the colors and styles you add have a strong influence.
+- The segment of the world you choose, 
+- And the colors and styles you add have a strong influence.
 
 Example: [Kenneth Field's blog post](https://www.esri.com/arcgis-blog/products/product/mapping/mapping-coronavirus-responsibly/)
 

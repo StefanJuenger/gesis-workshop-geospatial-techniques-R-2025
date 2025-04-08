@@ -39,10 +39,10 @@ course_content |>
 
 Thus far, we have learned about
 
-- different data formats
-- how to load them
-- first steps in interacting with them
-- creating maps with `tmap`
+- Different data formats
+- How to load them
+- First steps in interacting with them
+- Creating maps with `tmap`
 
 But the real magic in geospatial data lies in their flexibility.
 
@@ -50,19 +50,19 @@ But the real magic in geospatial data lies in their flexibility.
 
 In this session, you will learn
 
-- how to wrangle the different geospatial data formats even further
-- how to converse from one format into the other
+- How to wrangle the different geospatial data formats even further
+- How to converse from one format into the other
 
 Because we want to
 
-- link/join different datasets
-- do some spatial analysis
+- Link/join different datasets
+- Do some spatial analysis
 
 ## 1. Advanced Importing {.center style="text-align: center;"}
 
 ## Importing of non-spatial data
 
-Say, the data we want to use are not available as a shapefile. Point coordinates are often stored in table formats like `.csv` -- as is the location of charging stations for electric cars data in our `./data` folder. 
+Say the data we want to use are not available as a shapefile. Point coordinates are often stored in table formats like `.csv` -- like the location of charging stations for electric cars data in our `./data` folder. 
 
 ```{r}
 #| eval: false
@@ -157,7 +157,7 @@ sf::st_drop_geometry(echarging_sf) |>
 
 ## APIs
 
-Geospatial data tend to be quite big, there's a pressure to distribute data efficiently. Data dumps (on the internet) may not be helpful 
+Geospatial data tend to be quite big, and there's a pressure to distribute data efficiently. Data dumps (on the internet) may not be helpful 
 
 - When resources are low 
 - Time's a factor
@@ -177,7 +177,7 @@ Instead, a *Programming Application Interface* (API) is often used.
 
 ## Example: access to public transport
 
-Say, we're interested in the accessibility of public transport in Cologne
+Say, we're interested in the accessibility of public transport in Cologne.
 
 - Bus, tram, etc.
 - All platforms and vehicles should be wheel-chair accessible
@@ -282,9 +282,9 @@ tm_shape(cologne_pt_stops) +
 
 JSON files are pretty popular
 
-- standardized and well-structured
-- similar to XML-files, but human readability is a bit better
-- also easy to parse for editors and browser
+- Standardized and well-structured
+- Similar to XML files, but human readability is a bit better
+- Also easy to parse for editors and browser
 
 There's also a JSON flavor for geospatial data...
 
@@ -309,8 +309,6 @@ There's also a JSON flavor for geospatial data...
 ```
 
 <small>Source: https://www.offenedaten-koeln.de/</small>
-
-
 
 ## An application from Cologne’s Open Data portal
 
@@ -365,7 +363,7 @@ tm_shape(park_and_ride) +
 
 It is not only vector data that can be processed through these mechanisms.
 
-The idea is the same for raster data
+The idea is the same for raster data.
 
 - Accessing the information through URLs
 - Just the downloaded data formats differ
@@ -433,7 +431,7 @@ unlink("./data/lyr.1.asc")
 
 ## 'Spreadsheet join'
 
-While a lot of our previous data were points, we only had a column for the German federal states as administrative information so far. We're now moving "a layer down" and looking at Germany on a more fine-grained spatial level: the district. We just repeat what you already have done in the exercise `1_3_1_Basic Maps`: joining data just like simple spreadsheets.
+While much of our previous data were points, we only had a column for the German federal states as administrative information so far. We're now moving "a layer down" and looking at Germany on a more fine-grained spatial level: the district. We repeat what you already did in the exercise `1_3_1_Basic Maps`: joining data like simple spreadsheets.
 
 ```{r}
 #| eval: false
@@ -465,7 +463,7 @@ german_districts_enhanced <-
 
 ## Spatial join
 
-But what can we do, if we do not have matching identifier. For example, in the German districts data and the e-charger data, there are no matching administrative identifier.
+But what can we do if we do not have a matching identifier? For example, there are no matching administrative identifiers in the German district data and the e-charger data.
 
 ```{r}
 german_districts_enhanced
@@ -519,7 +517,7 @@ plot(echarging_sf_joined["AGS"])
 
 ## Spatial join even easier
 
-Say, we want to count the number of charging stations in each German district.
+Imagine we want to count the number of charging stations in each German district.
 
 ```{r}
 # adjust crs first
@@ -583,7 +581,7 @@ tm_shape(german_districts_enhanced) +
 
 ## Subsetting vector data
 
-One might be interested in only one specific area of Germany, like Cologne. To subset a `sf` object,  you can often use your usual data wrangling workflow. In this case, I know the AGS ID, and that is the only row I want to keep.
+One might be interested in only one specific area of Germany, like Cologne. To subset a `sf` object,  you can often use your usual data wrangling workflow. In this case, I know the AGS ID, the only row I want to keep.
 
 :::: columns
 ::: {.column width="50%"}
@@ -751,7 +749,7 @@ tm_shape(deutz) +
 
 ## Cropping raster data
 
-Cropping is then a method of cutting out a specific `slice` of a raster layer based on an input dataset or geospatial extent, such as a bounding box.
+Cropping is a method of cutting out a specific `slice` of a raster layer based on an input dataset or geospatial extent, such as a bounding box.
 
 :::: columns
 ::: {.column width="50%"}
@@ -861,14 +859,14 @@ tm_shape(cropped_masked_inhabitants_cologne) +
 
 ## Changes in terminology
 
-In case, we only want to add one attribute from a vector dataset `Y` to another vector dataset `X` we can conduct a spatial join using `sf::st_join()` as before. There is nothing new to tell. In the raster data world, these kind of operations are called raster extractions.
+If we only want to add one attribute from a vector dataset `Y` to another vector dataset `X`, we can conduct a spatial join using `sf::st_join()` as before. There is nothing new to tell. In the raster data world, these operations are called raster extractions.
 
 ## Extracting information from raster data
 
 Raster data are helpful when we aim to
 
 - Apply calculations that are the same for all geometries in the dataset
-- **Extract information from raster fast and efficient**
+- **Extract information from the raster fast and efficient**
 
 Do you remember these data operations?
 
@@ -916,10 +914,10 @@ echarging_sf_cologne
 
 ## More elaborated: spatial buffers
 
-Sometimes, extracting information 1:1 is not enough
+Sometimes, extracting information 1:1 is not enough.
 
-- Too narrow
-- Missing information about the surroundings of a point
+- It's too narrow
+- There is missing information about the surroundings of a point
 
 :::: columns
 ::: {.column width="50%"}
@@ -985,7 +983,7 @@ terra::extract(
 
 ## Raster aggregation
 
-We can use the same procedure to aggregate a raster dataset to a vector polygon dataset. That's a very common use case. Let's reload our Cologne shapefile.
+We can use the same procedure to aggregate a raster dataset into a vector polygon dataset. That's a widespread use case. Let's reload our Cologne shapefile.
 
 ```{r}
 #| eval: false
@@ -1169,7 +1167,7 @@ plot(polygon_raster)
 
 ## Analysis application: creating a quick 'heatmap'
 
-OpenStreetMap points data are nice for analyzing urban infrastructure. Let's draw a quick 'heatmap' using obersvation densities.
+Points of interest data are nice for analyzing urban infrastructure. Let's draw a quick 'heatmap' using observation densities.
 
 :::: columns
 ::: {.column width="50%"}
@@ -1223,9 +1221,9 @@ plot(echarging_sf_cologne_densities)
 
 Focal statistics are another method of including information near a point in space. However, it's applied to the whole dataset and is independent of arbitrary points we project onto a map.
 
-- relates focal cells to surrounding cells
-- vastly used in image processing
-- but also applicable in social science research, as we will see
+- Relates focal cells to surrounding cells
+- Vastly used in image processing
+- But also applicable in social science research, as we will see
 
 ## Analysis: edge detection
 

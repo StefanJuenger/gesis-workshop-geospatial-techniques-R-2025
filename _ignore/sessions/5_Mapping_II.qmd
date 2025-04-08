@@ -42,9 +42,9 @@ course_content |>
 
 In general, on `ggplot2`:
 
-- well-suited for multi-dimensional data
-- expects data (frames) as input
-- components of the plot are added as layers
+- Well-suited for multi-dimensional data
+- Expects data (frames) as input
+- Components of the plot are added as layers
 
 ```{r eval=FALSE}
 #| eval: false
@@ -57,9 +57,9 @@ plot_call +
 
 ## From `tmap` to `ggplot2`
 
-Reminder: We played around with `tmap` yesterday, and the results were already pretty nice. `ggplot2` allows us to customize our maps even more, draw on previous knowledge of the package and increase the possibilities to combine maps, plots, and more.
+Reminder: We played around with `tmap` yesterday, and the results were already pretty nice. `ggplot2` allows us to customize our maps even more, draw on previous knowledge of the package, increase the possibilities to combine maps and plots, and more.
 
-The good thing: the inner logic of `tmap` and `ggplot2` is the same and is based on the *grammar of graphics*.
+The good thing is that the inner logic of `tmap` and `ggplot2` is the same and is based on the *grammar of graphics*.
 
 If you are new to `ggplot2`, you might want to check out:
 
@@ -72,9 +72,9 @@ If you are new to `ggplot2`, you might want to check out:
 According to Wickham (2010, p. 8^[Wickham, Hadley. 2010. “A Layered Grammar of Graphics.” Journal of Computational and Graphical Statistics 19(1):3–28. doi: 10.1198/jcgs.2009.07098.
 ]), a layered plot consists of the following components:
 
-- data and aesthetic mappings,
-- geometric objects,
-- scales,
+- Data and aesthetic mappings,
+- Geometric objects,
+- Scales,
 - (and facet specification)
 
 ```{r}
@@ -155,17 +155,15 @@ ggplot() +
 
 ## Making a plan
 
-This map will be our canvas for the ongoing session.
-There are hundreds of options to change this map.
-We will cover at least some essential building blocks:
+This map will be our canvas for the ongoing session. There are hundreds of options to change this map. We will cover at least some essential building blocks:
 
-- *THE MAP*: adding attributes, choose from colors/palettes, adding layers
+- *THE MAP*: adding attributes, choosing from colors/palettes, adding layers
 - *THE LEGEND*: position, sizes, display
 - *THE ENVIRONMENT*: choosing from themes and build your own
 - *THE META-INFORMATION*: titles and sources
 - *THE EXTRAS*: scales and compass
 
-If your working on your maps, the [ggplot2 cheatsheets](https://rstudio.github.io/cheatsheets/html/data-visualization.html) will help you with an overview of scales, themes, labels, facets, and more. 
+If you are working on your maps, the [ggplot2 cheatsheets](https://rstudio.github.io/cheatsheets/html/data-visualization.html) will help you with an overview of scales, themes, labels, facets, and more. 
 
 ## The map layer: a basis
 
@@ -201,7 +199,7 @@ ggplot() +
 
 ## Add the `aesthetics` 
 
-We'll concentrate on mapping the e-car share on the district level.
+We'll concentrate on mapping the e-car share at the district level.
 
 :::: columns
 ::: {.column width="50%"}
@@ -239,7 +237,7 @@ ggplot() +
 
 ## The map layer 
 
-Are you having trouble choosing the right color? There are some excellent tutorials out there, f.e. by [Michael Toth](https://michaeltoth.me/a-detailed-guide-to-ggplot-colors.html).
+Are you having trouble choosing the right color? Some excellent tutorials exist, f.e, by [Michael Toth](https://michaeltoth.me/a-detailed-guide-to-ggplot-colors.html).
 
 :::: columns
 ::: {.column width="50%"}
@@ -275,7 +273,7 @@ ggplot() +
 
 ## The map layer 
 
-You are changing your map, step by step.
+You are changing your map step by step.
 
 :::: columns
 ::: {.column width="50%"}
@@ -392,7 +390,7 @@ ggplot() +
 
 ## Dealing with the Legend 
 
-You can deal with everything concerning the legend (labels, titles, width...) within the scale argument. The only thing you cannot change here is the position in relation to the map.
+You can handle everything concerning the legend (labels, titles, width...) within the scale argument. The only thing you cannot change here is the position in relation to the map.
 
 :::: columns
 ::: {.column width="50%"}
@@ -466,7 +464,7 @@ ggplot() +
 
 ## Save and reuse
 
-Maps produced with `ggplot2` are standard objects like any other object in `R` (they are lists). We can just assign them to re-use, plot later, and add map layers.
+Maps produced with `ggplot2` are standard objects like any other object in `R` (they are lists). We can assign them to reuse, plot later, and add map layers.
 
 Furthermore, you can save them just as any `ggplot2` graph. The `ggsave()` function automatically detects the file format. You can also define the height, width, and dpi, which is particularly useful to produce high-class graphics for publications.
 
@@ -501,7 +499,7 @@ ecar_map <-
 
 ## Get rid of everything?!
 
-The `theme` controls all 'non-data' display. If you want to get rid of the default `ggplot2` theme, you can do so. But instead of getting rid of everything, you might want to try out the built-in themes.
+The `theme` controls all 'non-data' displays. If you want to get rid of the default `ggplot2` theme, you can do so. Instead of removing everything, you should try out the built-in themes.
 
 :::: columns
 ::: {.column width="50%"}
@@ -590,7 +588,7 @@ ecar_map +
 
 ## Adding `labs`
 
-There is one necessary step to do. You should always make sure to include and cite your data sources. Especially in graphs and maps, you can use a short version to include them in the description directly.
+There is one necessary step to do. You should always make sure to include and cite your data sources. Especially in graphs and maps, you can use a short version to include them directly in the description.
 
 :::: columns
 ::: {.column width="50%"}
@@ -638,7 +636,7 @@ ecar_map +
 
 ## To be continued...
 
-Our code in total has already grown pretty much. Without going into too much detail, the next slides showcase some more changes you can do with your maps
+Our code has already grown. Without going into too much detail, the following slides showcase some more changes you can make to your maps
 
 **A map is never finished until you decide not to work on it anymore.**
 
@@ -680,7 +678,7 @@ german_cities |>
 
 ## Add City Labels
 
-Using `geom_label` to get a text box that holds a character string associated with an X- and Y-coordinate
+Using `geom_label` to get a text box with a character string associated with an X- and Y-coordinate.
 
 :::: columns
 ::: {.column width="50%"}
@@ -734,7 +732,7 @@ ecar_map +
 
 ## `ggplot2` and raster data
 
-You can also use `ggplot2` to create maps with raster data. There are several ways to do so. The easiest way is using the `tidyterra` package
+You can also use `ggplot2` to create maps with raster data. There are several ways to do so. The easiest way is using the `tidyterra` package.
 
 :::: columns
 ::: {.column width="50%"}
@@ -782,11 +780,11 @@ ggplot() +
 
 ## Where `ggplot2` cannot help anymore
   
-In some specific circumstances, we might realize that `ggplot2` is super powerful but just not designed to build maps. Typical features of maps are not in the package, like a compass or scale bars.
+In some specific circumstances, we might realize that `ggplot2` is super powerful but not originally designed to build maps. Typical features of maps are not in the package, like a compass or scale bars.
 
 This is where other packages might need to be installed. The good thing:
 Elements of the package `ggspatial` can be included as `ggplot2` layer.
-Checkout [Github](https://paleolimbot.github.io/ggspatial/).
+Check out [Github](https://paleolimbot.github.io/ggspatial/).
 
 ## The extras
 
