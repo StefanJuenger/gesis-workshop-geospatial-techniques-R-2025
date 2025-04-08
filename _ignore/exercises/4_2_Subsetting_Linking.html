@@ -3136,7 +3136,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>You either can use base R’s <code>merge()</code> function or <code>dplyr</code>’s <code>dplyr::left_join()</code>. Plus, you need the function <code>sf::st_transform()</code> to change the CRS.</p>
+<p>You can use base R’s <code>merge()</code> function or <code>dplyr</code>’s <code>dplyr::left_join()</code>. Plus, you need the function <code>sf::st_transform()</code> to change the CRS.</p>
 </div>
 </div>
 </div>
@@ -3165,7 +3165,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>You can use the dplyr function <code>dplyr::bind_rows()</code> to combine the two spatial objects, “Cologne” and “Cologne Surroundings”.</p>
+<p>You can use the <code>dplyr</code> function <code>dplyr::bind_rows()</code> to combine the two spatial objects, “Cologne” and “Cologne Surroundings”.</p>
 </div>
 </div>
 </div>
@@ -3179,7 +3179,7 @@ vertical-align: -.125em;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Now, to wrap-up, let’s do some stuff with other data formats. Sample 50 points that fall within the boundaries of the city of Cologne.</p>
+<p>To wrap up, let’s do some stuff with other data formats. Sample 50 points that fall within the boundaries of the city of Cologne.</p>
 </div>
 </div>
 <div class="callout callout-style-simple callout-caution no-icon callout-titled">
@@ -3223,7 +3223,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>You need the <code>immigrants_cologne.tif</code> and <code>inhabitants_cologne.tif</code> files in the <code>./data</code> folder. The German Census 2011 data could be more sparse due to some severe data protection measures.</p>
+<p>You need the <code>immigrants_cologne.tif</code> and <code>inhabitants_cologne.tif</code> files in the <code>./data</code> folder. Due to severe data protection measures, the German Census 2011 data could be more sparse.</p>
 </div>
 </div>
 </div>
@@ -3525,56 +3525,56 @@ dbl (4): latitude, longitude, power_kw, num_plugs
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   ID immigrants_cologne
-1   1           8.333333
-2   2                 NA
+1   1          28.947368
+2   2          32.568807
 3   3                 NA
 4   4                 NA
 5   5                 NA
-6   6          15.151515
+6   6           9.375000
 7   7                 NA
-8   8          41.509434
+8   8          10.752688
 9   9                 NA
 10 10                 NA
 11 11                 NA
-12 12                 NA
+12 12           9.523810
 13 13                 NA
 14 14                 NA
 15 15                 NA
-16 16          13.235294
+16 16                 NA
 17 17                 NA
 18 18                 NA
-19 19          41.958042
-20 20                 NA
+19 19                 NA
+20 20           5.208333
 21 21                 NA
 22 22                 NA
 23 23                 NA
-24 24           5.000000
+24 24                 NA
 25 25                 NA
-26 26                 NA
-27 27                 NA
-28 28          50.000000
-29 29                 NA
+26 26          66.666667
+27 27          20.000000
+28 28                 NA
+29 29          31.428571
 30 30                 NA
-31 31           7.446809
+31 31                 NA
 32 32                 NA
 33 33                 NA
 34 34                 NA
 35 35                 NA
-36 36                 NA
-37 37          18.292683
+36 36          33.333333
+37 37                 NA
 38 38                 NA
-39 39                 NA
+39 39          11.538462
 40 40                 NA
-41 41           4.878049
+41 41                 NA
 42 42                 NA
 43 43                 NA
 44 44                 NA
 45 45                 NA
 46 46                 NA
 47 47                 NA
-48 48          34.816754
+48 48                 NA
 49 49                 NA
-50 50           8.088235</code></pre>
+50 50           7.894737</code></pre>
 </div>
 </div>
 </div>
@@ -3606,56 +3606,56 @@ dbl (4): latitude, longitude, power_kw, num_plugs
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>immigrant_rates_1000m_buffer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   ID immigrants_cologne
-1   1          13.942363
-2   2          19.894907
-3   3                NaN
-4   4          13.041798
-5   5          36.808435
-6   6          11.856248
-7   7          12.012473
-8   8          29.470711
-9   9          10.578059
-10 10          16.832536
-11 11          15.886584
-12 12          18.429498
-13 13          60.818713
-14 14          25.461085
-15 15          24.423901
-16 16          14.683613
-17 17          21.739237
-18 18          18.927933
-19 19          32.056027
-20 20          28.939915
-21 21          13.456865
-22 22          12.290692
-23 23          24.970904
-24 24          23.712564
-25 25          17.953411
-26 26          13.110341
-27 27          14.081738
-28 28          16.117683
-29 29          68.971241
-30 30           9.696142
-31 31          23.460695
-32 32                NaN
-33 33          28.564971
-34 34          13.932065
-35 35          11.236123
-36 36          13.228666
-37 37          20.978376
-38 38          44.642857
-39 39          15.267309
-40 40          12.892462
-41 41           8.267928
-42 42          11.525936
-43 43          18.056508
-44 44          20.013956
-45 45          29.695864
-46 46           9.193501
-47 47          10.000000
-48 48          28.770988
-49 49          13.882736
-50 50          13.985593</code></pre>
+1   1           13.75325
+2   2           15.36722
+3   3           12.38931
+4   4           10.88890
+5   5           16.34015
+6   6           32.75869
+7   7           14.02908
+8   8           18.37278
+9   9           14.86400
+10 10           28.03204
+11 11           17.98605
+12 12           14.54929
+13 13           17.49377
+14 14                NaN
+15 15           22.74998
+16 16           18.13523
+17 17           25.29488
+18 18           11.50185
+19 19           11.52537
+20 20           12.90745
+21 21           16.84174
+22 22           16.40192
+23 23           53.33333
+24 24           27.04480
+25 25           57.57991
+26 26           21.28689
+27 27           24.74339
+28 28           20.18002
+29 29           12.15949
+30 30           28.57143
+31 31           28.57143
+32 32           12.85851
+33 33           18.72773
+34 34           19.70508
+35 35           29.73042
+36 36           14.20964
+37 37           16.45320
+38 38           21.97630
+39 39           16.31841
+40 40           19.18296
+41 41           38.78783
+42 42           16.23668
+43 43           14.80303
+44 44           10.27249
+45 45                NaN
+46 46                NaN
+47 47           17.80271
+48 48           11.07369
+49 49           17.72083
+50 50           16.07771</code></pre>
 </div>
 </div>
 </div>

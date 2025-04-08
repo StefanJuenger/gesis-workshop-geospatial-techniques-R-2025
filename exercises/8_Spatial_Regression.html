@@ -3111,7 +3111,7 @@ vertical-align: -.125em;
 
 <section id="exercises" class="level3">
 <h3 class="anchored" data-anchor-id="exercises">Exercises</h3>
-<p>Let’s see how different neighborhood matrix styles can impact the estimates of spatial regression models. Run the code below in order to have the data in place for this exercise. (You can ignore any warning messages.)</p>
+<p>Let’s see how different neighborhood matrix styles can impact the estimates of spatial regression models. Run the code below to have the data in place for this exercise. (You can ignore any warning messages.)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>voting_districts <span class="ot">&lt;-</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_read</span>(<span class="st">&quot;./data/Stimmbezirk.shp&quot;</span>) <span class="sc">|&gt;</span> </span>
@@ -3175,7 +3175,7 @@ Projected CRS: ETRS89 / UTM zone 32N</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Re-use the code from the previous exercise for the Queen neighborhoods. But this time, do one weight matrix with row-normalization and another one with minmax-normalization. Insert them into two spatial regression lag models of your choice using the same variables as in the lecture, i.e., both of them should either be a Spatial Lag Y or Spatial Lag X model.</p>
+<p>Re-use the code from the previous exercise for the Queen neighborhoods. But this time, do one weight matrix with row-normalization and another with min-max-normalization. Insert them into two spatial regression lag models of your choice using the same variables as in the lecture, i.e., both should be a Spatial Lag Y or Spatial Lag X model.</p>
 </div>
 </div>
 <div class="callout callout-style-simple callout-caution no-icon callout-titled">
@@ -3190,7 +3190,7 @@ Projected CRS: ETRS89 / UTM zone 32N</code></pre>
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>For minmax-normalization, you would have to use the option <code>style = &quot;minmax&quot;</code> in the <code>spdep:nb2listw()</code> function.</p>
+<p>For min-max-normalization, you would have to use the option <code>style = &quot;minmax&quot;</code> in the <code>spdep:nb2listw()</code> function.</p>
 </div>
 </div>
 </div>

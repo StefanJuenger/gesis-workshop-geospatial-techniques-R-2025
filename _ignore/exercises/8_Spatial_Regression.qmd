@@ -14,7 +14,8 @@ callout-appearance: minimal
 ---
 
 ### Exercises
-Let's see how different neighborhood matrix styles can impact the estimates of spatial regression models. Run the code below in order to have the data in place for this exercise. (You can ignore any warning messages.)
+
+Let's see how different neighborhood matrix styles can impact the estimates of spatial regression models. Run the code below to have the data in place for this exercise. (You can ignore any warning messages.)
 
 ```{r}
 #| eval: false
@@ -106,16 +107,19 @@ election_results <-
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
-Re-use the code from the previous exercise for the Queen neighborhoods. But this time, do one weight matrix with row-normalization and another one with minmax-normalization. Insert them into two spatial regression lag models of your choice using the same variables as in the lecture, i.e., both of them should either be a Spatial Lag Y or Spatial Lag X model.
+
+Re-use the code from the previous exercise for the Queen neighborhoods. But this time, do one weight matrix with row-normalization and another with min-max-normalization. Insert them into two spatial regression lag models of your choice using the same variables as in the lecture, i.e., both should be a Spatial Lag Y or Spatial Lag X model.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
-For minmax-normalization, you would have to use the option `style = "minmax"` in the `spdep:nb2listw()` function.
+
+For min-max-normalization, you would have to use the option `style = "minmax"` in the `spdep:nb2listw()` function.
 :::
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
+
 Calculate the impacts of both models. What is your observation?
 :::
 
@@ -123,6 +127,7 @@ Calculate the impacts of both models. What is your observation?
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 1
+
 ```{r}
 # spdep
 queen_neighborhood <-
@@ -150,11 +155,11 @@ spatial_lag_y_minmax <-
     listw = queen_minmax
     )
 ```
-
 :::
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 2
+
 ```{r}
 spatialreg::impacts(spatial_lag_y_W, listw = queen_W)
 spatialreg::impacts(spatial_lag_y_minmax, listw = queen_minmax)

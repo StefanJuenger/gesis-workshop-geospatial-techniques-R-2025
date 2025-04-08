@@ -3121,7 +3121,7 @@ vertical-align: -.125em;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>We may not always rely on georeferenced data collected in the whole area of a country. Thus, when exploiting geospatial data for linking, one exercise is to subset the data. This could be a subset of the charging stations data we have used in the lecture. Let’s say, we conducted a survey in the German federal state North-Rhine Westphalia (NRW).</p>
+<p>We may not always rely on georeferenced data collected in the whole area of a country. Thus, when exploiting geospatial data for linking, one exercise is to subset the data. This could be a subset of the charging station data used in the lecture. Let’s say we conducted a survey in the German federal state North-Rhine Westphalia (NRW).</p>
 <p>Subset the charger data file yourself by relying on the spatial information of the file <code>charging_points_ger.csv</code> and a polygon of NRW. There are two ways to achieve this. How many chargers are located within NRW?</p>
 </div>
 </div>
@@ -3137,7 +3137,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>You need two datasets for that: the point layer <code>charging_points_ger.csv</code> (remember to adjust the crs) in the <code>./data</code> folder and polygons of NRW. For the latter, you can again use the <code>osmdata</code> syntax, or one of the shapefiles in the <code>./data/folder</code> that you filter for NRW.</p>
+<p>You need two datasets for that: the point layer <code>charging_points_ger.csv</code> (remember to adjust the crs) in the <code>./data</code> folder and polygons of NRW. For the latter, you can again use the <code>osmdata</code> syntax or one of the shapefiles in the <code>./data/folder</code> you filter for NRW.</p>
 </div>
 </div>
 </div>
@@ -3153,7 +3153,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>There are two functions you can explore: <code>sf::st_join</code> and <code>sf::st_intersection()</code>. The default of <code>sf::st_join()</code> will leave you with a ‘left-join’ and returns a data object with all chargers and matching district information for those that are located within NRW. You can reset the option to perform an ‘inner-join’ and keep only the observation that lay within the predefined area (<code>sf::st_join(x , y, join  = &quot;&quot;, left = FALSE)</code>).</p>
+<p>You can explore two functions: <code>sf::st_join</code> and <code>sf::st_intersection()</code>. The default of <code>sf::st_join()</code> will leave you with a ‘left-join’ and returns a data object with all chargers and matching district information for those located within NRW. You can reset the option to perform an ‘inner-join’ and keep only the observation that lay within the predefined area (<code>sf::st_join(x , y, join  = &quot;&quot;, left = FALSE)</code>).</p>
 </div>
 </div>
 </div>
@@ -3167,8 +3167,8 @@ vertical-align: -.125em;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Did the operationalization of charger accessibility convince you? There may other ways of doing it, such as: Proportion of residents with max. 1000 m linear distance to the nearest charger.</p>
-<p>You may not know this, but we have everything we need to create this indicator on a smaller scale as well: charger data, Census data, and our synthetic georeferenced data! So, what is the mean share of residents with max 1000m linear distance to the nearest train station in a 5km neighborhood of our fake respondents?</p>
+<p>Did the operationalization of charger accessibility convince you? There may be other ways, such as the proportion of residents with max. 1000 m linear distance to the nearest charger.</p>
+<p>You may not know this, but we have everything we need to create this indicator on a smaller scale as well: charger data, Census data, and our synthetic georeferenced data! So, what is the mean share of residents with max. 1000m linear distance to the nearest train station in a 5km neighborhood of our fake respondents?</p>
 <p>You can run the code below to load all the data you need.</p>
 </div>
 </div>
@@ -3250,7 +3250,7 @@ vertical-align: -.125em;
 </div>
 <div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>In the add-on slides of the spatial wrangling session, we introduced and gave some information on how to transform the raster to points (and back). To get a <code>sf</code> point layer for the raster object you can use <code>terra::as.points() |&gt; sf::st_as_sf()</code>. To rasterize the object, you can use <code>terra::rasterize(input_points, target_raster, input_raster, field = &quot;target_variable&quot;, fun = &quot;mean&quot;, background = 0)</code>.</p>
+<p>In the add-on slides of the spatial wrangling session, we introduced and gave some information on how to transform the raster to points (and back). To get a <code>sf</code> point layer for the raster object, you can use <code>terra::as.points() |&gt; sf::st_as_sf()</code>. To rasterize the object, you can use <code>terra::rasterize(input_points, target_raster, input_raster, field = &quot;target_variable&quot;, fun = &quot;mean&quot;, background = 0)</code>.</p>
 </div>
 </div>
 </div>

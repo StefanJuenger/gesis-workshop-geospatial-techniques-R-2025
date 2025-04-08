@@ -15,7 +15,7 @@ callout-appearance: minimal
 
 ### Exercises
 
-We've finally arrived at creating our first maps based on the data we imported and cleaned in the previous sessions. The focus of this first session lies on the package `tmap` to create maps.
+We've finally arrived at creating our first maps based on the data we imported and cleaned in the previous sessions. This first session focuses on the package `tmap` to create maps.
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
@@ -52,10 +52,10 @@ german_districts_enhanced <-
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
 
-In the second step, we want to visualize some information on the German districts contained in the attribute table. Choose a column of interest and create a map. Alternate the map by:
+In the second step, we want to visualize information on the German districts in the attribute table. Choose a column of interest and create a map. Alternate the map by:
 
-- add a legend title and change the color palette
-- add a title to the map and change the font color of the title
+-   Add a legend title and change the color palette
+-   Add a title to the map and change the font color of the title
 
 Assign your map to an object called `ger_map`.
 :::
@@ -65,8 +65,8 @@ Assign your map to an object called `ger_map`.
 
 Combine the following options with a plus sign:
 
-- add a legend title and change the color palette: `tm_fill(fill = "", fill.legend = tm_legend(title = ""), fill.scale = tm_scale_continuous(values = "")) +`
-- add a title to the map and change the font color of the title: `tm_title(text = "", color = "") +`
+-   Add a legend title and change the color palette: `tm_fill(fill = "", fill.legend = tm_legend(title = ""), fill.scale = tm_scale_continuous(values = "")) +`
+-   Add a title to the map and change the font color of the title: `tm_title(text = "", color = "") +`
 
 If you run `cols4all::c4a_gui()`, R fires up a nice graphical interface to search for colors.
 :::

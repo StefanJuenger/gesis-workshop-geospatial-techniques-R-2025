@@ -19,28 +19,30 @@ editor_options:
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
-We may not always rely on georeferenced data collected in the whole area of a country. Thus, when exploiting geospatial data for linking, one exercise is to subset the data. This could be a subset of the charging stations data we have used in the lecture. Let's say, we conducted a survey in the German federal state North-Rhine Westphalia (NRW).
+
+We may not always rely on georeferenced data collected in the whole area of a country. Thus, when exploiting geospatial data for linking, one exercise is to subset the data. This could be a subset of the charging station data used in the lecture. Let's say we conducted a survey in the German federal state North-Rhine Westphalia (NRW).
 
 Subset the charger data file yourself by relying on the spatial information of the file `charging_points_ger.csv` and a polygon of NRW. There are two ways to achieve this. How many chargers are located within NRW?
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
-You need two datasets for that: the point layer `charging_points_ger.csv` (remember to adjust the crs) in the `./data` folder and polygons of NRW. For the latter, you can again use the `osmdata` syntax, or one of the shapefiles in the `./data/folder` that you filter for NRW.
+
+You need two datasets for that: the point layer `charging_points_ger.csv` (remember to adjust the crs) in the `./data` folder and polygons of NRW. For the latter, you can again use the `osmdata` syntax or one of the shapefiles in the `./data/folder` you filter for NRW.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
-There are two functions you can explore: `sf::st_join` and `sf::st_intersection()`. The default of `sf::st_join()` will leave you with a 'left-join' and returns a data object with all chargers and matching district information for those that are located within NRW. You can reset the option to perform an 'inner-join' and keep only the observation that lay within the predefined area (`sf::st_join(x , y, join  = "", left = FALSE)`).
+
+You can explore two functions: `sf::st_join` and `sf::st_intersection()`. The default of `sf::st_join()` will leave you with a 'left-join' and returns a data object with all chargers and matching district information for those located within NRW. You can reset the option to perform an 'inner-join' and keep only the observation that lay within the predefined area (`sf::st_join(x , y, join  = "", left = FALSE)`).
 :::
-
-
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
-Did the operationalization of charger accessibility convince you? There may other ways of doing it, such as: Proportion of residents with max. 1000 m linear distance to the nearest charger. 
 
-You may not know this, but we have everything we need to create this indicator on a smaller scale as well: charger data, Census data, and our synthetic georeferenced data! So, what is the mean share of residents with max 1000m linear distance to the nearest train station in a 5km neighborhood of our fake respondents?
+Did the operationalization of charger accessibility convince you? There may be other ways, such as the proportion of residents with max. 1000 m linear distance to the nearest charger.
+
+You may not know this, but we have everything we need to create this indicator on a smaller scale as well: charger data, Census data, and our synthetic georeferenced data! So, what is the mean share of residents with max. 1000m linear distance to the nearest train station in a 5km neighborhood of our fake respondents?
 
 You can run the code below to load all the data you need.
 :::
@@ -137,33 +139,35 @@ synthetic_data <-
   sf::st_intersection(nrw)
 ```
 
-
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
+
 As always, there are several ways to do this. We suggest the following steps:
 
-1. Create a point layer with the centroids of all grids in NRW based on the census population layer.
+1.  Create a point layer with the centroids of all grids in NRW based on the census population layer.
 
-2. Calculate the distance to the next charger station for each grid.
+2.  Calculate the distance to the next charger station for each grid.
 
-3. Create a column that equals 0 if the distance to the next charger is >1000m and contains the number of inhabitants if <1000.
+3.  Create a column that equals 0 if the distance to the next charger is \>1000m and contains the number of inhabitants if \<1000.
 
-4. Rasterize the sf data object to receive two raster objects: number of inhabitants and number of inhabitants with a max 1000m distance to the next train station.
+4.  Rasterize the sf data object to receive two raster objects: number of inhabitants and number of inhabitants with a max 1000m distance to the next train station.
 
-5. Calculate the mean for the 5km buffer for each "respondent" for each raster.
+5.  Calculate the mean for the 5km buffer for each "respondent" for each raster.
 
-6. Calculate the share.
+6.  Calculate the share.
 :::
 
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
-In the add-on slides of the spatial wrangling session, we introduced and gave some information on how to transform the raster to points (and back). To get a `sf` point layer for the raster object you can use `terra::as.points() |> sf::st_as_sf()`. 
-To rasterize the object, you can use `terra::rasterize(input_points, target_raster, input_raster, field = "target_variable", fun = "mean", background = 0)`.
+
+In the add-on slides of the spatial wrangling session, we introduced and gave some information on how to transform the raster to points (and back). To get a `sf` point layer for the raster object, you can use `terra::as.points() |> sf::st_as_sf()`. To rasterize the object, you can use `terra::rasterize(input_points, target_raster, input_raster, field = "target_variable", fun = "mean", background = 0)`.
 :::
 
 ### Solutions
+
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 1
+
 ```{r}
 #| eval: false
 # load charger
@@ -267,11 +271,11 @@ charger_nrw <-
 nrow(charger_nrw)
 # 11,081 chargers in NRW
 ```
-
 :::
 
 ::: {.callout-tip collapse="true"}
 ## `r emo::ji("white_check_mark")` Solution 2
+
 ```{r}
 #| echo: false
 #| message: false
@@ -392,4 +396,3 @@ linked_df <-
 summary(linked_df)
 ```
 :::
-

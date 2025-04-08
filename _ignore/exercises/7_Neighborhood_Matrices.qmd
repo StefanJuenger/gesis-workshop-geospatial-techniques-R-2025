@@ -114,7 +114,7 @@ As in the lecture, create a neighborhood (weight) matrix, but this time, do it f
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
 
-You could either use the `sdep` package with its function `spdep::poly2nb()` or the more modern approach of the `sfdep` package using the function `sfdep::st_contiguity()`. In both cases, you have to set the option `queen = FALSE` for Rook neighborhoods.
+You could either use the `sdep` package with its function `spdep::poly2nb()` or the more modern approach of the `sfdep` package using the function `sfdep::st_contiguity()`. In both cases, you must set the option `queen = FALSE` for Rook neighborhoods.
 :::
 
 ::: callout-note
@@ -144,7 +144,7 @@ Now, let's see how these different spatial weights perform in an analysis. Calcu
 ::: {.callout-caution collapse="true"}
 ## `r emo::ji("bulb")` Tip
 
-It is essential to which path you have taken before -- using `spdep` and `sfdep` -- as it determines how you solve this exercise.
+It is essential to know which path you have taken before -- using `spdep` and `sfdep` -- as it determines how you solve this exercise.
 :::
 
 ### Solutions

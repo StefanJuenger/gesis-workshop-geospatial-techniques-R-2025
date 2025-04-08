@@ -39,7 +39,7 @@ Now, use this matrix to create a raster layer and plot it.
 The `terra::rast()` function can be fed with matrices to create a raster layer.
 :::
 
-The `terra::rast()` function can not only be used to create raster data on the fly, which is also quite boring. Instead, we can use it to import already prepared data.
+The `terra::rast()` function can not only be used to create raster data on the fly, but it is also quite dull. Instead, we can use it to import already prepared data.
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 3

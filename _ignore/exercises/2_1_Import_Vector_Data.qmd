@@ -15,14 +15,14 @@ callout-appearance: minimal
 
 ### Exercises
 
-Let's get started with some hands-on exercises and exploring some data! This exercise focuses on importing different vector data geometries from various data sources and getting used to simple feature data tables.
+Let's get started with some hands-on exercises and exploring some data! This exercise focuses on importing different vector data geometries from various sources and getting used to simple feature data tables.
 
-In the folder `./data`, you can find the data files prepped for all the exercises which rely on preexisting data sets. However, if you like to play around with your own data, feel free to do so!
+In the folder `./data`, you can find the data files prepped for all the exercises which rely on preexisting data sets. However, if you like to play around with your data, feel free to do so!
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
 
-Load the administrative borders of Germany. Therefore, import the shapefile `VG250_STA.shp` from the respective folder and assign it to an object named "germany".
+Load the administrative borders of Germany. Therefore, import the shapefile `VG250_STA.shp` from the respective folder and assign it to an object named `germany`.
 
 Plot the newly created object.
 :::
@@ -33,7 +33,7 @@ Plot the newly created object.
 Don't forget to load the packages `sf` and set your working directory before starting this exercise.
 :::
 
-The output in the console of `R` gives you already some information on the data you just loaded. You also see that the object `germany` appeared in your environment. Though, we will explore the data set a little bit closer.
+The `R` console output already gives you some information on the data you just loaded. You also see that the object germany` appeared in your environment. However, we will explore the data set a little bit closely.
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 2
@@ -41,7 +41,7 @@ The output in the console of `R` gives you already some information on the data 
 Explore the data and answer the following questions:
 
 -   What is the geometry type?
--   What is the id of the coordinate reference system?
+-   What is the ID of the coordinate reference system?
 -   Which kind of class is the object?
 -   What is the name of the column containing the information on geometries?
 -   Which attributes are assigned to the geometries?

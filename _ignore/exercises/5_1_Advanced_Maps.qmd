@@ -15,16 +15,16 @@ editor_options:
 
 ### Exercises
 
-Let us go back to where we stopped developing our mapping techniques yesterday: our German districts map This is just a super short repetition of what was just presented.
+Let us return to where we stopped developing our mapping techniques yesterday: our German district map. This is just a super short repetition of what was just presented.
 
-No worries, we're going to have some time to improve your maps in the second exercise.
+No worries; we'll have time to improve your maps in the second exercise.
 
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 1
 
-Recreate a simple districts map as already created yesterday but use ggplot2 this time.
+Recreate a simple district map as already created yesterday, but use ggplot2 this time.
 
-They don't have to match perfectly but:
+They don't have to match perfectly, but:
 
 -   Use one of the attributes in the data
 -   Choose a color palette.
@@ -73,13 +73,13 @@ You need the function `ggsave` to fulfill this task.
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 3
 
-Now we want to add another layer to see if the distance to public transport correlates with population size.
+Now, we want to add another layer to see if the distance to public transport correlates with population size.
 
 -   Create a new layer with the centroids of the German districts
--   Add this layer to the map and choose population as attribute
+-   Add this layer to the map and choose population as an attribute
 -   Change the color of the points
 
-**For an extra challenge which we haven't covered**: Can you change the size of dots according to population size?
+**For an extra challenge that we haven't covered**: Can you change the size of dots according to population size?
 :::
 
 ::: {.callout-caution collapse="true"}
