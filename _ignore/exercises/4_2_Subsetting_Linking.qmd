@@ -1,0 +1,270 @@
+---
+title: "Exercise 4_2: Subsetting and Linking"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+editor_options: 
+  chunk_output_type: console
+---
+
+### Exercises
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 1
+Import the ESRI shapefile of German districts and the district attribute table. Join the two data frames, transform the CRS to `EPSG:3035`, and check your output. 
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+You either can use base R's `merge()` function or `dplyr`'s `dplyr::left_join()`. Plus, you need the function `sf::st_transform()` to change the CRS.
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 2
+We want a first descriptive visual of the distribution of charging stations in Cologne (or any other district of your choice) and the surrounding districts. Filter the district of Cologne (`AGS == "05315"`) and find the surrounding districts. Calculate the number of chargers per district (`charger_count`) and the number of chargers per 1,000 inhabitants in each district (`charger_dens`).  Plot the two columns for Cologne and its surrounding districts.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+You can use the dplyr function `dplyr::bind_rows()` to combine the two spatial objects, "Cologne" and "Cologne Surroundings".
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 3
+Now, to wrap-up, let's do some stuff with other data formats. Sample 50 points that fall within the boundaries of the city of Cologne.
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+Sampling is straightforward: Apply the `sf::st_sample` to the Cologne vector data, but make sure to apply the `sf::st_as_sf()` function afterward to receive a full-fledged data table (with a geometry column only).
+:::
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 4
+Create a new raster layer comprising Cologne's immigrant rates based on the raster layers from the previous exercises. Extract the immigrant rate value at each position of the previously sampled points as a vector. What is your observation?
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+You need the `immigrants_cologne.tif` and `inhabitants_cologne.tif` files in the `./data` folder. The German Census 2011 data could be more sparse due to some severe data protection measures.
+:::
+
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Exercise 5
+Use an adequate method of raster extraction to gather information in the geographic surroundings of a point. What is your observation now?
+:::
+
+::: {.callout-caution collapse="true"}
+## `r emo::ji("bulb")` Tip
+Assume that people move in a 1,000-meter radius around their location. Thus, extracting information on buffers of 1,000 meters around the points might be interesting using the option `sf::st_buffer()` function. In that case, you should also set a descriptive statistics function, e.g., with the option `fun = mean` and its helpful companion option to consider missing values `na.rm = TRUE`. 
+:::
+
+
+### Solutions
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 1
+```{r}
+#| eval: false
+# load libraries
+library(sf)
+library(dplyr)
+
+# Import data
+german_districts <- 
+  sf::read_sf("./data/VG250_KRS.shp") |>  
+  sf::st_transform(3035) |>  
+  dplyr::select(AGS, GEN)
+
+attributes_districts <- 
+  readr::read_delim("./data/attributes_districts.csv", delim = ";") 
+
+# Join data and transform
+german_districts_enhanced <- 
+  german_districts |> 
+  dplyr::left_join(attributes_districts, by = "AGS") 
+
+# Check
+sf::st_crs(german_districts_enhanced)
+
+head(german_districts_enhanced, 2)
+```
+
+```{r}
+#| echo: false
+# load libraries
+library(sf)
+library(dplyr)
+
+# Import data
+german_districts <- 
+  sf::read_sf("../../data/VG250_KRS.shp") |>  
+  sf::st_transform(3035) |>  
+  dplyr::select(AGS, GEN)
+
+attributes_districts <- 
+  readr::read_delim("../../data/attributes_districts.csv", delim = ";") 
+
+# Join data and transform
+german_districts_enhanced <- 
+  german_districts |> 
+  dplyr::left_join(attributes_districts, by = "AGS") 
+
+# Check
+sf::st_crs(german_districts_enhanced)
+
+head(german_districts_enhanced, 2)
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 2
+```{r}
+#| eval: false
+# filter Cologne
+cologne <-
+  german_districts |> 
+  dplyr::filter(AGS == "05315")
+
+# filter surrounding districts, append with Cologne data and select the charger column
+cologne_sur <-
+  german_districts |> 
+  dplyr::filter(lengths(sf::st_touches(german_districts, cologne)) > 0) |> 
+  dplyr::bind_rows(cologne) 
+
+
+# one pipe to rule them all
+cologne_sur_enhanced  <-
+  readr::read_delim("./data/charging_points_ger.csv", delim =";") |> 
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) |>  
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  sf::st_transform(crs = 3035) |> 
+  sf::st_join(cologne_sur, join = sf::st_within) |> 
+  dplyr::group_by(AGS) |> 
+  dplyr::summarise(charger_count = dplyr::n()) |>  
+  sf::st_drop_geometry() |>  
+  dplyr::left_join(cologne_sur, y = _, by = "AGS") |>  
+  dplyr::left_join(
+    attributes_districts |> 
+      dplyr::select(AGS, population), 
+    by = "AGS"
+    ) |> 
+  dplyr::mutate(charger_dens = (charger_count*1000) / population)
+
+# plot  
+cologne_sur_enhanced |>  
+  dplyr::select(charger_count, charger_dens) |> 
+  plot()
+```
+
+```{r}
+#| echo: false
+# filter Cologne
+cologne <-
+  german_districts |> 
+  dplyr::filter(AGS == "05315")
+
+# filter surrounding districts, append with Cologne data and select the charger column
+cologne_sur <-
+  german_districts |> 
+  dplyr::filter(lengths(sf::st_touches(german_districts, cologne)) > 0) |> 
+  dplyr::bind_rows(cologne) 
+
+
+# one pipe to rule them all
+cologne_sur_enhanced  <-
+  readr::read_delim("../../data/charging_points_ger.csv", delim =";") |> 
+  dplyr::filter(!is.na(longitude) & !is.na(latitude)) |>  
+  sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326) |> 
+  sf::st_transform(crs = 3035) |> 
+  sf::st_join(cologne_sur, join = sf::st_within) |> 
+  dplyr::group_by(AGS) |> 
+  dplyr::summarise(charger_count = dplyr::n()) |>  
+  sf::st_drop_geometry() |>  
+  dplyr::left_join(cologne_sur, y = _, by = "AGS") |>  
+  dplyr::left_join(
+    attributes_districts |> 
+      dplyr::select(AGS, population), 
+    by = "AGS"
+    ) |> 
+  dplyr::mutate(charger_dens = (charger_count*1000) / population)
+
+# plot  
+cologne_sur_enhanced |>  
+  dplyr::select(charger_count, charger_dens) |> 
+  plot()
+```
+
+:::
+
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 3
+```{r}
+cologne_50_points <-
+  cologne |>  
+  sf::st_sample(50) |> 
+  sf::st_as_sf()
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 4
+```{r}
+#| eval: false
+library(terra)
+
+immigrant_rates <-
+  terra::rast("./data/immigrants_cologne.tif") * 100 /
+  terra::rast("./data/inhabitants_cologne.tif")
+
+immigrant_rates_at_point <- terra::extract(immigrant_rates, cologne_50_points)
+
+immigrant_rates_at_point
+
+# There are a lot of missing values.
+```
+
+```{r}
+#| echo: false
+library(terra)
+
+immigrant_rates <-
+  terra::rast("../../data/immigrants_cologne.tif") * 100 /
+  terra::rast("../../data/inhabitants_cologne.tif")
+
+immigrant_rates_at_point <- terra::extract(immigrant_rates, cologne_50_points)
+
+immigrant_rates_at_point
+
+# There are a lot of missing values.
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## `r emo::ji("white_check_mark")` Solution 5
+```{r}
+immigrant_rates_1000m_buffer <-
+  terra::extract(
+    immigrant_rates, 
+    sf::st_buffer(cologne_50_points, 1000), 
+    fun = mean,
+    na.rm = TRUE
+    )
+
+immigrant_rates_1000m_buffer
+```
+
+:::
