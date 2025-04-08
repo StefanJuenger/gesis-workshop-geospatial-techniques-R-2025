@@ -1,0 +1,20 @@
+---
+title: "Exercise 5_2: The Perfect Map"
+subtitle: 'Introduction to Geospatial Techniques for Social Scientists in R'
+author: Stefan Jünger & Dennis Abel
+format: 
+  html:
+    embed-resources: true
+    code-copy: true
+execute:
+  echo: true
+editor: visual
+callout-icon: false
+callout-appearance: minimal
+---
+
+::: callout-note
+## `r emo::ji("weight_lifting_man")` Open Exercise
+
+From here on, you can go and explore!
+:::
