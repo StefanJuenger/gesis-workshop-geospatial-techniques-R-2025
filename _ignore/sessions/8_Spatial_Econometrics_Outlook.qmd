@@ -386,6 +386,18 @@ Some random examples:
 - ...
 
 
+## Advanced Geospatial Data Processing for Social Scientists
+
+- **28-29 April 2025 Online**
+- [Register online](https://training.gesis.org/?site=pDetails&child=full&pID=0x5948F7543A5E42CF9CE2C91E844E33E1)
+- Expand your knowledge of geospatial data wrangling
+- Focus on raster data and complex datacubes
+- Remote sensing and Earth observation APIs
+
+![](../img/cube2.png){.r-stretch fig-align="center"}
+</small>Source:[R-Spatial](https://raw.githubusercontent.com/r-spatial/stars/master/images/cube2.png)</small>
+
+
 ## The End {.center style="text-align: center;"}
 
 
