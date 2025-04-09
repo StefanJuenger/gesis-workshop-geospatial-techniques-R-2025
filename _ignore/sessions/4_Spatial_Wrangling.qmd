@@ -782,7 +782,7 @@ cropped_inhabitants_cologne <-
     deutz
   )
 
-tm_shape(inhabitants_cologne) +
+tm_shape(cropped_inhabitants_cologne) +
   tm_raster()
 ```
 :::
