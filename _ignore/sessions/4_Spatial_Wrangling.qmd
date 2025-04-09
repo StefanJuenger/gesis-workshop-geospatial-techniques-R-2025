@@ -860,10 +860,6 @@ tm_shape(cropped_masked_inhabitants_cologne) +
 :::
 ::::
 
-## Exercise 4_2: Subsetting and Linking
-
-[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/4_2_Subsetting_Linking.html)
-
 ## 4. Extraction & Aggregation {.center style="text-align: center;"}
 
 ## Changes in terminology
@@ -1067,6 +1063,9 @@ plot(cologne["immigrant_rate"])
 :::
 ::::
 
+## Exercise 4_2: Subsetting and Linking
+
+[Exercise](https://stefanjuenger.github.io/gesis-workshop-geospatial-techniques-R-2025/exercises/4_2_Subsetting_Linking.html)
 
 ## 5. Conversion & Analysis {.center style="text-align: center;"}
 
