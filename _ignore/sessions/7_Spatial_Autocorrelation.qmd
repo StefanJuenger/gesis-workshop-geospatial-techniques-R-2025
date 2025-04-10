@@ -408,9 +408,9 @@ One of the disputed but, at the same time, standard procedures is row-normalizat
 
 $$W = \sum_j\frac{w_{ij}}{\sum_jw_{ij}}$$
 
-An alternative would be minmax-normalization:
+An alternative would be min-max-normalization:
 
-$$W = \sum_j\frac{w_{ij} - min(w_{ij})}{max(w_{ij})-min(w_{ij})}$$
+$$W = \sum_j\frac{w_{ij}}{min(\{max(r_{i}), max(c_{i})\})}$$
 
 ## Apply row-normalization
 
