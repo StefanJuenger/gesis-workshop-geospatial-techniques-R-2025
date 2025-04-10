@@ -436,7 +436,7 @@ unlink("./data/lyr.1.asc")
 
 ## 'Spreadsheet join'
 
-While much of our previous data were points, we only had a column for the German federal states as administrative information so far. We're now moving "a layer down" and looking at Germany on a more fine-grained spatial level: the district. We repeat what you already did in the exercise `1_3_1_Basic Maps`: joining data like simple spreadsheets.
+While much of our previous data were points, we only had a column for the German federal states as administrative information so far. We're now moving "a layer down" and looking at Germany on a more fine-grained spatial level: the district. We repeat what you already did in the exercise `3_1_Basic Maps`: joining data like simple spreadsheets.
 
 ```{r}
 #| eval: false

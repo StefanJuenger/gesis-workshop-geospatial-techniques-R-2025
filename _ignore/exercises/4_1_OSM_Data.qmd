@@ -42,7 +42,7 @@ First, specify the bounding box like before; second, the query parameters; and t
 ::: callout-note
 ## `r emo::ji("weight_lifting_man")` Exercise 3
 
-Download the data using the `osmadata::osmdata_sf()` function and extract only the polygons.
+Download the data using the `osmdata::osmdata_sf()` function and extract only the polygons.
 :::
 
 ::: {.callout-caution collapse="true"}
