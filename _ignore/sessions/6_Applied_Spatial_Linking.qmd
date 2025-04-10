@@ -59,7 +59,7 @@ Survey data enriched with geo-coordinates (or other direct spatial references).
 
 ## An example workflow
 
-::::
+:::: columns
 ::: {.column width="50%"}
 From the addresses to analyses with georeferenced survey data, several steps and challenges along the way. We will talk about:
 
@@ -87,6 +87,7 @@ That‘s one of the biggest issues.
 
 ## Data availability
 
+:::: columns
 ::: {.column width="50%"}
 Geospatial Data
 
@@ -118,7 +119,7 @@ Even without (in)direct spatial references, data may still be sensitive.
 - Geospatial attributes add new information to existing data
 - Maybe part of general data privacy checks, but we may not distribute these data as is
 
-::::
+:::: columns
 ::: {.column width="50%"}
 Safe Rooms / Secure Data Centers
 
@@ -134,7 +135,7 @@ Safe Rooms / Secure Data Centers
 
 ## Legal Regulations in Data Processing
 
-::::
+:::: columns
 ::: {.column width="50%"}
 In Germany, storing personal information such as addresses in the same place as actual survey attributes is usually not allowed.
 
@@ -253,7 +254,7 @@ We rely on a service offered by the Federal Agency of Cartography and Geodesy (B
 
 ## `bkggeocoder`
 
-::::
+:::: columns
 ::: {.column width="50%"}
 `R` package `bkggeocoder` developed at GESIS for (offline) geocoding by Stefan and Jonas Lieth:
 
@@ -268,7 +269,7 @@ We rely on a service offered by the Federal Agency of Cartography and Geodesy (B
 
 ## Spatial Linking
 
-::::
+:::: columns
 ::: {.column width="50%"}
 The geocoding tool automatically retrieves point coordinates, administrative unit keys, and grid cell IDs. Spatial joins based on coordinates for other units:
 
