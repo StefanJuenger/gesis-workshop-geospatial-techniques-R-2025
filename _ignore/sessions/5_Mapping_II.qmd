@@ -107,7 +107,7 @@ german_districts_enhanced <-
   dplyr::left_join(attributes_districts, by = "AGS")
 
 # load states shapefile
-german_states <- sf::read_sf("./data/VG250_STA.shp")
+german_states <- sf::read_sf("./data/VG250_LAN.shp")
 ```
 
 ```{r}
@@ -126,7 +126,7 @@ german_districts_enhanced <-
   dplyr::left_join(attributes_districts, by = "AGS")
 
 # load states shapefile
-german_states <- sf::read_sf("../../data/VG250_STA.shp")
+german_states <- sf::read_sf("../../data/VG250_LAN.shp")
 ```
 
 ## Here's a first basic map
